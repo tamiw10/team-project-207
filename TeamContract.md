@@ -75,3 +75,4 @@ Team Member Signatures:
 Yi Xuan (Jessica) Su,
 Jadyn Nok Tong Mo,
 Emily Tran
+Tamima Wadageri
