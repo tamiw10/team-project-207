@@ -24,17 +24,15 @@ This contract sets out shared expectations and commitments for how our team will
 
 * All communication will remain respectful, professional, and constructive.
 
-* What things should a teammate notify you about? (Examples: if they think they won't be able to meet a deadline, if they have to miss lecture, etc.)
+* What things should a teammate notify you about? 
 *     If there is not enough time to complete a task let everyone know so that it can be distributed
 *     If they can't make a tutorial or a meeting
-
-* Respectful and inclusive behaviour are necessary for smooth and productive communication. What are some respectful and inclusive behaviours you expect when communicating with each other during lectures, labs, or outside of class? (Examples: Actively listening to each team members ideas, giving everyone a chance to meaningfully contribute, etc.)
+* Teamates will actively listen to each other's ideas, and give everyone a chance to meaningfully contribute
 
 ### Attendance & Participation
 * Members will attend all scheduled classes and team meetings unless illness or emergencies occur.
 * If unable to attend, a member must notify the team in advance and provide input asynchronously.
 * During team activities, every member will contribute ideas and engage in the discussion.
-
 
 ### Work Quality
 * All deliverables should be completed on time, tested, and meet the agreed quality standard.
