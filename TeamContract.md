@@ -24,10 +24,11 @@ This contract sets out shared expectations and commitments for how our team will
 
 * All communication will remain respectful, professional, and constructive.
 
-* What things should a teammate notify you about? 
-*     If there is not enough time to complete a task let everyone know so that it can be distributed
-*     If they can't make a tutorial or a meeting
 * Teamates will actively listen to each other's ideas, and give everyone a chance to meaningfully contribute
+
+* Teammates should notify each other if:
+* There is not enough time to complete a task let everyone know so that it can be distributed
+* They can't make a tutorial or a meeting
 
 ### Attendance & Participation
 * Members will attend all scheduled classes and team meetings unless illness or emergencies occur.
