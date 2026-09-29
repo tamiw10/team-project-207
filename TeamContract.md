@@ -58,5 +58,5 @@ By signing below, we acknowledge that we have read, discussed, and agreed to the
 
 Team Member Signatures:
 
-Yi Xuan (Jessica) Su
+Yi Xuan (Jessica) Su,
 Jadyn Nok Tong Mo
