@@ -18,9 +18,11 @@ This contract sets out shared expectations and commitments for how our team will
 
 ### Communication
 
-* Which platform will you use for communication outside of class, when required for work on your course project? (Examples: Text message, Discord, WeChat, etc.)
+* We will use Instagram as our primary communication channel.
 
-* Each teammate agrees to respond to messages in at most how long? 1 day? 2 days? Some other amount of time? 
+* Team members will respond to messages within 12 hours on weekdays.
+
+* All communication will remain respectful, professional, and constructive.
 
 * What things should a teammate notify you about? (Examples: if they think they won't be able to meet a deadline, if they have to miss lecture, etc.)
 
@@ -59,4 +61,5 @@ By signing below, we acknowledge that we have read, discussed, and agreed to the
 Team Member Signatures:
 
 Yi Xuan (Jessica) Su,
-Jadyn Nok Tong Mo
+Jadyn Nok Tong Mo,
+Emily Tran
