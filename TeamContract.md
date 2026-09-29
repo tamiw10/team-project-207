@@ -25,8 +25,21 @@ This contract sets out shared expectations and commitments for how our team will
 * All communication will remain respectful, professional, and constructive.
 
 * What things should a teammate notify you about? (Examples: if they think they won't be able to meet a deadline, if they have to miss lecture, etc.)
+*     If there is not enough time to complete a task let everyone know so that it can be distributed
+*     If they can't make a tutorial or a meeting
 
 * Respectful and inclusive behaviour are necessary for smooth and productive communication. What are some respectful and inclusive behaviours you expect when communicating with each other during lectures, labs, or outside of class? (Examples: Actively listening to each team members ideas, giving everyone a chance to meaningfully contribute, etc.)
+
+### Attendance & Participation
+* Members will attend all scheduled classes and team meetings unless illness or emergencies occur.
+* If unable to attend, a member must notify the team in advance and provide input asynchronously.
+* During team activities, every member will contribute ideas and engage in the discussion.
+
+
+### Work Quality
+* All deliverables should be completed on time, tested, and meet the agreed quality standard.
+* Members agree to review each other’s work constructively.
+* Each Pull Request will be reviewed by at least two team members.
 
 ---
 
@@ -35,11 +48,13 @@ This contract sets out shared expectations and commitments for how our team will
 * Based on your previous teamwork experiences, what other behaviours do you agree upon as a team?
     - some examples of possible additional team norms and expectations are included in the sample team contract in case your team needs some help getting ideas for what else you want to include.
 
+
 ---
 
 ## Decision Making
 
-* How will decisions about your team project be made? (Examples: By majority vote, by unanimous vote, etc.)
+* Decisions will be made by consensus when possible.
+* If consensus cannot be reached, a vote will be taken; majority rules.
 
 ---
 ## Conflict resolution
