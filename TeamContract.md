@@ -41,14 +41,6 @@ This contract sets out shared expectations and commitments for how our team will
 
 ---
 
-### [Other Categories of norms and expectations go here]
-
-* Based on your previous teamwork experiences, what other behaviours do you agree upon as a team?
-    - some examples of possible additional team norms and expectations are included in the sample team contract in case your team needs some help getting ideas for what else you want to include.
-
-
----
-
 ## Decision Making
 
 * Decisions will be made by consensus when possible.
@@ -57,13 +49,19 @@ This contract sets out shared expectations and commitments for how our team will
 ---
 ## Conflict resolution
 
-* How will your team resolve conflicts? (Example: by listening to each other's side of the issue and attempting to reach a compromise. By consulting a TA or instructor as a team, if a resolution has not yet been reached.)
+If conflict arises:
+
+1. The team will first attempt to resolve the issue privately through open discussion, by listening to each other's side of the issue and reaching a compromise
+
+2. If the issue persists, the team will involve a member of the course teaching team as mediator.
 
 ---
 
 ## Accountability
 
-* Reliability and accountability are also important aspects of teamwork. What are the responsibilities of each team member? (Example: completing their share of the work in a timely manner, seeking assistance from teammates/TAs/instructors when required, etc.)
+* Team members are expected to complete their share of the work on time and seek assitance from teammates when required
+* Persistent non-participation or failure to meet expectations may result in lower peer evaluation scores.
+* All members agree to provide honest and fair peer evaluations.
 
 ---
 
