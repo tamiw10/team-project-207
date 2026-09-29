@@ -27,8 +27,8 @@ This contract sets out shared expectations and commitments for how our team will
 * Teamates will actively listen to each other's ideas, and give everyone a chance to meaningfully contribute
 
 * Teammates should notify each other if:
-* There is not enough time to complete a task let everyone know so that it can be distributed
-* They can't make a tutorial or a meeting
+  * They can't make a tutorial or a meeting
+  * There is not enough time to complete a task let everyone know so that it can be distributed
 
 ### Attendance & Participation
 * Members will attend all scheduled classes and team meetings unless illness or emergencies occur.
