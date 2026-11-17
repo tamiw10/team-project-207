@@ -17,7 +17,7 @@ public class LogContributionView extends JPanel {
     public String trip_goal_currency;
 
     // create labels
-    // title of frame will be the name of trip (pull from trip) ->
+    // title of frame will be the name of trip (pull from trip) -> or in Contributor classs?
 
     // title of page
     private final JLabel LogSCLabel = new JLabel("Log a saving contribution" + trip_goal_currency);
