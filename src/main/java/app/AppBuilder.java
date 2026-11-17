@@ -3,6 +3,7 @@ package app;
 import data_access.FileUserDataAccessObject;
 import data_access.FrankfurterExchangeRateGateway;
 import data_access.JsonFileTripDataAccessObject;
+import entity.Trip;
 import entity.UserFactory;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.logged_in.ChangePasswordController;
@@ -16,7 +17,13 @@ import interface_adapter.logout.LogoutPresenter;
 import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
+import interface_adapter.suggest_idea.SuggestIdeaController;
+import interface_adapter.suggest_idea.SuggestIdeaPresenter;
+import interface_adapter.vote.ActivitiesViewModel;
+import interface_adapter.vote.VoteController;
+import interface_adapter.vote.VotePresenter;
 import java.awt.*;
+import java.util.List;
 import javax.swing.*;
 import use_case.change_password.ChangePasswordInputBoundary;
 import use_case.change_password.ChangePasswordInteractor;
@@ -30,6 +37,13 @@ import use_case.logout.LogoutOutputBoundary;
 import use_case.signup.SignupInputBoundary;
 import use_case.signup.SignupInteractor;
 import use_case.signup.SignupOutputBoundary;
+import use_case.suggest_idea.SuggestIdeaInputBoundary;
+import use_case.suggest_idea.SuggestIdeaInteractor;
+import use_case.suggest_idea.SuggestIdeaOutputBoundary;
+import use_case.vote.VoteInputBoundary;
+import use_case.vote.VoteInteractor;
+import use_case.vote.VoteOutputBoundary;
+import view.ActivitiesView;
 import view.LoggedInView;
 import view.LoginView;
 import view.SignupView;
@@ -60,6 +74,9 @@ public class AppBuilder {
   private LoggedInViewModel loggedInViewModel;
   private LoggedInView loggedInView;
   private LoginView loginView;
+  private ActivitiesViewModel activitiesViewModel;
+  private ActivitiesView activitiesView;
+  private VoteController voteController;
 
   public AppBuilder() {
     cardPanel.setLayout(cardLayout);
@@ -83,6 +100,13 @@ public class AppBuilder {
     loggedInViewModel = new LoggedInViewModel();
     loggedInView = new LoggedInView(loggedInViewModel);
     cardPanel.add(loggedInView, LoggedInViewModel.VIEW_NAME);
+    return this;
+  }
+
+  public AppBuilder addActivitiesView() {
+    activitiesViewModel = new ActivitiesViewModel();
+    activitiesView = new ActivitiesView(activitiesViewModel);
+    cardPanel.add(activitiesView, ActivitiesViewModel.VIEW_NAME);
     return this;
   }
 
@@ -138,6 +162,72 @@ public class AppBuilder {
     final LogoutController logoutController = new LogoutController(logoutInteractor);
     loggedInView.setLogoutController(logoutController);
     return this;
+  }
+
+  /**
+   * Adds the Vote on Activity Ideas Use Case to the application. Needs the logged-in and
+   * activities views to have been added first.
+   *
+   * @return this builder
+   */
+  public AppBuilder addVoteUseCase() {
+    final VoteOutputBoundary voteOutputBoundary = new VotePresenter(activitiesViewModel);
+    final VoteInputBoundary voteInteractor =
+        new VoteInteractor(tripDataAccessObject, voteOutputBoundary);
+    voteController = new VoteController(voteInteractor);
+    activitiesView.setVoteController(voteController);
+
+    activitiesView.setBackAction(
+        () -> {
+          viewManagerModel.setState(LoggedInViewModel.VIEW_NAME);
+          viewManagerModel.notifyViewChanged();
+        });
+    loggedInView.setOpenActivitiesAction(this::openActivities);
+    return this;
+  }
+
+  /**
+   * Adds the Suggest Activity Idea Use Case to the application. Needs the activities view to have
+   * been added first.
+   *
+   * @return this builder
+   */
+  public AppBuilder addSuggestIdeaUseCase() {
+    final SuggestIdeaOutputBoundary suggestIdeaOutputBoundary =
+        new SuggestIdeaPresenter(activitiesViewModel);
+    final SuggestIdeaInputBoundary suggestIdeaInteractor =
+        new SuggestIdeaInteractor(tripDataAccessObject, suggestIdeaOutputBoundary);
+    activitiesView.setSuggestIdeaController(new SuggestIdeaController(suggestIdeaInteractor));
+    return this;
+  }
+
+  /**
+   * Opens the activities screen for the trip the user has open. Until the trip list screen exists
+   * and sets the current trip, this falls back to the first trip the user belongs to.
+   */
+  private void openActivities() {
+    final String username = loggedInViewModel.getState().getUsername();
+    final List<Trip> trips = tripDataAccessObject.getTripsForMember(username);
+    if (trips.isEmpty()) {
+      JOptionPane.showMessageDialog(cardPanel, "You are not a member of any trip yet.");
+    } else {
+      final String currentTripId = tripDataAccessObject.getCurrentTripId();
+      Trip trip = trips.get(0);
+      for (Trip candidate : trips) {
+        if (candidate.getId().equals(currentTripId)) {
+          trip = candidate;
+        }
+      }
+      tripDataAccessObject.setCurrentTripId(trip.getId());
+      final interface_adapter.vote.ActivitiesState state = activitiesViewModel.getState();
+      state.setUsername(username);
+      state.setTripId(trip.getId());
+      state.setMessage("");
+      state.setError("");
+      voteController.showDay(trip.getId(), null, username);
+      viewManagerModel.setState(ActivitiesViewModel.VIEW_NAME);
+      viewManagerModel.notifyViewChanged();
+    }
   }
 
   public JFrame build() {

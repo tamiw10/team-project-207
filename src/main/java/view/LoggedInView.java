@@ -19,10 +19,12 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
   private final JLabel passwordErrorField = new JLabel();
   private ChangePasswordController changePasswordController = null;
   private LogoutController logoutController;
+  private Runnable openActivitiesAction = () -> {};
 
   private final JLabel username;
 
   private final JButton logOut;
+  private final JButton activities;
 
   private final JTextField passwordInputField = new JTextField(15);
   private final JButton changePassword;
@@ -46,6 +48,10 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
 
     changePassword = new JButton("Change Password");
     buttons.add(changePassword);
+
+    activities = new JButton("Vote on Activities");
+    buttons.add(activities);
+    activities.addActionListener(evt -> openActivitiesAction.run());
 
     logOut.addActionListener(this);
 
@@ -111,6 +117,15 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
 
   public void setChangePasswordController(ChangePasswordController changePasswordController) {
     this.changePasswordController = changePasswordController;
+  }
+
+  /**
+   * Sets what the Vote on Activities button does.
+   *
+   * @param openActivitiesAction runs when the user clicks the button
+   */
+  public void setOpenActivitiesAction(Runnable openActivitiesAction) {
+    this.openActivitiesAction = openActivitiesAction;
   }
 
   public void setLogoutController(LogoutController logoutController) {
