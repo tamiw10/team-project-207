@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import use_case.suggest_idea.SuggestIdeaDataAccessInterface;
+import use_case.vote.VoteDataAccessInterface;
 
 /**
  * Keeps trips and everything logged against them in memory. Use this in unit tests. {@link
@@ -19,7 +21,8 @@ import java.util.Map;
  * need a new method, add it here and to {@link JsonFileTripDataAccessObject} only if it changes
  * stored data.
  */
-public class InMemoryTripDataAccessObject {
+public class InMemoryTripDataAccessObject
+    implements VoteDataAccessInterface, SuggestIdeaDataAccessInterface {
 
   private final Map<String, Trip> trips = new LinkedHashMap<>();
   private final Map<String, Expense> expenses = new LinkedHashMap<>();
@@ -66,6 +69,7 @@ public class InMemoryTripDataAccessObject {
    * @param tripId the id to look up
    * @return the trip, or null if there is none
    */
+  @Override
   public Trip getTrip(String tripId) {
     return trips.get(tripId);
   }
@@ -160,6 +164,7 @@ public class InMemoryTripDataAccessObject {
    *
    * @param idea the idea to save
    */
+  @Override
   public void saveActivityIdea(ActivityIdea idea) {
     activityIdeas.put(idea.getId(), idea);
     onDataChanged();
@@ -181,6 +186,7 @@ public class InMemoryTripDataAccessObject {
    * @param tripId the trip
    * @return the trip's activity ideas
    */
+  @Override
   public List<ActivityIdea> getActivityIdeas(String tripId) {
     final List<ActivityIdea> result = new ArrayList<>();
     for (ActivityIdea idea : activityIdeas.values()) {

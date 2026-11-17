@@ -34,6 +34,8 @@ public final class SampleDataSeeder {
   private static final double RAMEN_JPY = 4800.0;
   private static final double RAMEN_CAD = 43.0;
   private static final double TEAMLAB_CAD = 160.0;
+  private static final double TSUKIJI_CAD = 40.0;
+  private static final double SHIBUYA_SKY_CAD = 30.0;
   private static final int TRIP_DAYS = 7;
   private static final int PROPOSAL_HOUR = 10;
 
@@ -100,21 +102,42 @@ public final class SampleDataSeeder {
             ExpenseCategory.FOOD,
             START.plusDays(1)));
 
-    final ActivityIdea teamLab =
-        new ActivityIdea(
-            "sample-activity-1",
-            SAMPLE_TRIP_ID,
-            START.plusDays(1),
-            "teamLab Planets",
-            TEAMLAB_CAD,
-            "emily",
-            LocalDateTime.of(2026, 11, 10, PROPOSAL_HOUR, 0));
-    teamLab.addVote("emily");
-    teamLab.addVote("tamima");
-    data.saveActivityIdea(teamLab);
+    final LocalDate activityDay = START.plusDays(1);
+    saveIdea(
+        data, "sample-activity-1", activityDay, "teamLab Planets", TEAMLAB_CAD, "emily", 0,
+        "amelia", "tamima");
+    saveIdea(
+        data, "sample-activity-2", activityDay, "Tsukiji market", TSUKIJI_CAD, "jessica", 1,
+        "amelia");
+    saveIdea(data, "sample-activity-3", activityDay, "Sensoji Temple", 0, "jadyn", 2, "jadyn");
+    saveIdea(data, "sample-activity-4", activityDay, "Shibuya Sky", SHIBUYA_SKY_CAD, "tamima", 3);
 
     System.out.println(
         "Sample data written. Log in as any of tamima/amelia/jadyn/jessica/emily "
             + "with password \"password\".");
+  }
+
+  private static void saveIdea(
+      JsonFileTripDataAccessObject data,
+      String id,
+      LocalDate day,
+      String title,
+      double cost,
+      String proposedBy,
+      int minutesAfterTen,
+      String... voters) {
+    final ActivityIdea idea =
+        new ActivityIdea(
+            id,
+            SAMPLE_TRIP_ID,
+            day,
+            title,
+            cost,
+            proposedBy,
+            LocalDateTime.of(2026, 11, 10, PROPOSAL_HOUR, minutesAfterTen));
+    for (String voter : voters) {
+      idea.addVote(voter);
+    }
+    data.saveActivityIdea(idea);
   }
 }
