@@ -12,5 +12,5 @@ public interface LogContributionUserDataAccessInterface {
 
     void saveContribution(Contribution contribution);
 
-    List<Contribution> getContributionsByTrip(String tripId);
+    List<Contribution> getContributions(String tripId);
 }

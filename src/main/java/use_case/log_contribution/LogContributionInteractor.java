@@ -9,12 +9,11 @@ import java.util.List;
 import java.util.UUID;
 
 public class LogContributionInteractor implements LogContributionInputBoundary {
-
-    private final LogContributionDataAccessInterface dataAccessObject;
+    private final LogContributionUserDataAccessInterface dataAccessObject;
     private final LogContributionOutputBoundary presenter;
 
     public LogContributionInteractor(
-            LogContributionDataAccessInterface dataAccessObject,
+            LogContributionUserDataAccessInterface dataAccessObject,
             LogContributionOutputBoundary presenter) {
 
         this.dataAccessObject = dataAccessObject;
@@ -78,7 +77,7 @@ public class LogContributionInteractor implements LogContributionInputBoundary {
 
         // Retrieve existing contributions
         List<Contribution> contributions =
-                dataAccessObject.getContributionsByTrip(trip.getId());
+                dataAccessObject.getContributions(trip.getId());
 
         // Calculate the user's existing savings
         double totalSaved = 0;
