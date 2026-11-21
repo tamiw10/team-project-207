@@ -1,16 +1,19 @@
 package view;
 
+import interface_adapter.log_contribution.LogContributionViewModel;
+import interface_adapter.log_contribution.LogContributionViewModelListener;
+
 import javax.swing.*;
+import java.awt.event.ActionListener;
 
 /** View when a user is logging a contribution (before trip) */
-public class LogContributionView extends JPanel {
+public class LogContributionView extends JPanel implements LogContributionViewModelListener {
     // add implements ActionListener, LogContributionViewModelListener in class definition
     // add log_contribution package to interface_adapter package
         // add LogContributionViewModelListener interface to that package
 
     // define variables
-    // private final LogContributionViewModel
-        // add LogContributionViewModel class
+    private final LogContributionViewModel logContributionViewModel;
 
     // placeholder variable for what currency the user wants their goal to be in
     // I think this is set in the trip making use case and is typed in HomeCurrency text field (tamima's use case)
@@ -39,8 +42,9 @@ public class LogContributionView extends JPanel {
     final LabelTextPanel MyGoalPanel = new LabelTextPanel(MyGoalLabel, MyGoalField);
 
     // constructor (parameter will be LogContributionViewModel)
-    public LogContributionView(){
+    public LogContributionView(LogContributionViewModel logContributionViewModel){
 
+        this.logContributionViewModel = logContributionViewModel;
     }
 
     // action listener methods
