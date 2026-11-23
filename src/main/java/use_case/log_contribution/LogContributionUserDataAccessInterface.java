@@ -5,12 +5,16 @@ import entity.Trip;
 
 import java.util.List;
 
+
+/** DAO for Log Contribution Use Case
+ * implemented by {@link data_access.InMemoryUserDataAccessObject}
+ */
 public interface LogContributionUserDataAccessInterface {
+
+    /**
+     * Returns username of current user
+     *
+     * @return username of current user
+     */
     String getCurrentUsername();
-
-    Trip getTrip(String tripId);
-
-    void saveContribution(Contribution contribution);
-
-    List<Contribution> getContributions(String tripId);
 }
