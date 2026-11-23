@@ -6,8 +6,10 @@ import entity.Trip;
 import java.util.List;
 
 
-/** DAO for Log Contribution Use Case
- * implemented by {@link data_access.InMemoryUserDataAccessObject}
+/**
+ * User DAO for Log Contribution Use Case
+ * implemented by {@link data_access.InMemoryUserDataAccessObject} and
+ * {@link data_access.JsonFileTripDataAccessObject}. (not true yet)
  */
 public interface LogContributionUserDataAccessInterface {
 

@@ -1,39 +1,47 @@
 package use_case.log_contribution;
 
+/** Output data for Use Case 2: Log a Contribution */
 public class LogContributionOutputData {
     private final double savingsGoal;
     private final double totalSaved;
-    private final double remaining;
+    private final double amountRemaining;
     private final int weeksRemaining;
     private final Double weeklyRequired;
     private final Double weeklyPace;
     private final boolean onTrack;
     private final double groupSaved;
     private final double groupGoal;
-    private final boolean goalReached;
+    private final boolean userGoalReached;
+    private final boolean groupGoalReached;
+    private final double userProgress;
+    private final double groupProgress;
 
-    public LogContributionOutputData(
-            double savingsGoal,
-            double totalSaved,
-            double remaining,
-            int weeksRemaining,
-            Double weeklyRequired,
-            Double weeklyPace,
-            boolean onTrack,
-            double groupSaved,
-            double groupGoal,
-            boolean goalReached) {
-
+    public LogContributionOutputData(double savingsGoal,
+                                     double totalSaved,
+                                     double amountRemaining,
+                                     int weeksRemaining,
+                                     Double weeklyRequired,
+                                     Double weeklyPace,
+                                     boolean onTrack,
+                                     double groupSaved,
+                                     double groupGoal,
+                                     boolean userGoalReached,
+                                     boolean groupGoalReached,
+                                     double userProgress,
+                                     double groupProgress) {
         this.savingsGoal = savingsGoal;
         this.totalSaved = totalSaved;
-        this.remaining = remaining;
+        this.amountRemaining = amountRemaining;
         this.weeksRemaining = weeksRemaining;
         this.weeklyRequired = weeklyRequired;
         this.weeklyPace = weeklyPace;
         this.onTrack = onTrack;
         this.groupSaved = groupSaved;
         this.groupGoal = groupGoal;
-        this.goalReached = goalReached;
+        this.userGoalReached = userGoalReached;
+        this.groupGoalReached = groupGoalReached;
+        this.userProgress = userProgress;
+        this.groupProgress = groupProgress;
     }
 
     public double getSavingsGoal() {
@@ -45,7 +53,7 @@ public class LogContributionOutputData {
     }
 
     public double getRemaining() {
-        return remaining;
+        return amountRemaining;
     }
 
     public int getWeeksRemaining() {
@@ -72,7 +80,13 @@ public class LogContributionOutputData {
         return groupGoal;
     }
 
-    public boolean isGoalReached() {
-        return goalReached;
+    public boolean isUserGoalReached() {
+        return userGoalReached;
     }
+
+    public boolean isGroupGoalReached() { return groupGoalReached; }
+
+    public double getUserProgress() { return userProgress; }
+
+    public double getGroupProgress() { return groupProgress; }
 }

@@ -2,37 +2,34 @@ package use_case.log_contribution;
 
 import java.time.LocalDate;
 
+/** Input data for the Use Case 2: Log a Contribution */
 public class LogContributionInputData {
     private final String tripId;
-    private final double amount;
-    private final LocalDate date;
-    private final Double savingsGoal;
+    private final String amountText;
+    private final String dateText;
+    private final String savingsGoalText;
 
-    public LogContributionInputData(
-            String tripId,
-            double amount,
-            LocalDate date,
-            Double savingsGoal) {
-
+    public LogContributionInputData(String tripId, String amountText, String dateText,
+                                    String savingsGoalText) {
         this.tripId = tripId;
-        this.amount = amount;
-        this.date = date;
-        this.savingsGoal = savingsGoal;
+        this.amountText = amountText;
+        this.dateText = dateText;
+        this.savingsGoalText = savingsGoalText;
     }
 
     public String getTripId() {
         return tripId;
     }
 
-    public double getAmount() {
-        return amount;
+    public String getAmount() {
+        return amountText;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public String getDate() {
+        return dateText;
     }
 
-    public Double getSavingsGoal() {
-        return savingsGoal;
+    public String getSavingsGoal() {
+        return savingsGoalText;
     }
 }
