@@ -1,7 +1,5 @@
 package use_case.log_contribution;
 
-import java.time.LocalDate;
-
 /** Input data for the Use Case 2: Log a Contribution */
 public class LogContributionInputData {
     private final String tripId;

@@ -34,8 +34,10 @@ public class LogContributionPresenter implements LogContributionOutputBoundary {
         state.setGroupGoal("$" + Double.toString(outputData.getGroupGoal()));
         state.setStatusMessage("Contribution Saved");
         state.setError(false);
-        state.setClearForm(false);
+        state.setClearForm(true);
         logContributionViewModel.notifyStateChanged();
+        // Reset the flag for future updates
+        state.setClearForm(false);
 
     }
 

@@ -14,6 +14,7 @@ public class Main {
             .addLoginUseCase()
             .addChangePasswordUseCase()
             .addLogoutUseCase()
+            .addLogContributionUseCase()
             .build();
 
     application.pack();

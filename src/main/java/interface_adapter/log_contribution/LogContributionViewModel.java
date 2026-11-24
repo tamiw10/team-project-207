@@ -16,6 +16,10 @@ public class LogContributionViewModel {
     private final List<LogContributionViewModelListener> listeners = new ArrayList<>();
     private LogContributionState state = new LogContributionState();
 
+    public String getTripName() { return trip.getName(); }
+
+    public String getTripId() { return trip.getId(); }
+
     public String getCurrency() { return trip.getHomeCurrency(); }
 
     public LogContributionState getState() { return state; }

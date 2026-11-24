@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.function.Function;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import use_case.log_contribution.LogContributionTripDataAccessInterface;
 
 /**
  * Stores trips, expenses, contributions and activity ideas in one JSON file, so data is still there
@@ -21,7 +22,8 @@ import org.json.JSONObject;
  * <p>The whole file is rewritten after every change. That is simple and fast enough for the amount
  * of data one group's trip produces.
  */
-public class JsonFileTripDataAccessObject extends InMemoryTripDataAccessObject {
+public class JsonFileTripDataAccessObject extends InMemoryTripDataAccessObject implements
+        LogContributionTripDataAccessInterface {
 
   private static final String TRIPS = "trips";
   private static final String EXPENSES = "expenses";

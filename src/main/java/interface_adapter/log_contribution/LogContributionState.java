@@ -15,6 +15,7 @@ public class LogContributionState {
     private String totalSaved = "";
     // amountRemaining is not displayed information so might not be necessary
     private String amountRemaining = "";
+    private boolean hasSavingsGoal = false;
     private String savingsGoal = "";
     private boolean onTrack = false;
     private double userProgress = 0.0;
@@ -62,6 +63,11 @@ public class LogContributionState {
     public void setSavingsGoal(String savingsGoal) {
         this.savingsGoal = savingsGoal;
     }
+    public boolean isHasSavingsGoal() { return hasSavingsGoal; }
+    public void setHasSavingsGoal(boolean hasSavingsGoal) {
+        this.hasSavingsGoal = hasSavingsGoal;
+    }
+
     public boolean isOnTrack() { return onTrack; }
     public void setOnTrack(boolean onTrack) {
         this.onTrack = onTrack;

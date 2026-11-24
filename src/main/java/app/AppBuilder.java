@@ -3,6 +3,7 @@ package app;
 import data_access.FileUserDataAccessObject;
 import data_access.FrankfurterExchangeRateGateway;
 import data_access.JsonFileTripDataAccessObject;
+import entity.Trip;
 import entity.UserFactory;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.logged_in.ChangePasswordController;
@@ -34,6 +35,15 @@ import view.LoggedInView;
 import view.LoginView;
 import view.SignupView;
 import view.ViewManager;
+import interface_adapter.log_contribution.LogContributionController;
+import interface_adapter.log_contribution.LogContributionPresenter;
+import interface_adapter.log_contribution.LogContributionViewModel;
+import use_case.log_contribution.LogContributionInputBoundary;
+import use_case.log_contribution.LogContributionInteractor;
+import use_case.log_contribution.LogContributionOutputBoundary;
+import view.LogContributionView;
+import use_case.log_contribution.LogContributionUserDataAccessInterface;
+import use_case.log_contribution.LogContributionTripDataAccessInterface;
 
 public class AppBuilder {
   private final JPanel cardPanel = new JPanel();
@@ -41,6 +51,11 @@ public class AppBuilder {
   final UserFactory userFactory = new UserFactory();
   final ViewManagerModel viewManagerModel = new ViewManagerModel();
   ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
+
+  // for Use Case 2:
+  private LogContributionViewModel logContributionViewModel;
+  private LogContributionView logContributionView;
+  private LogContributionController logContributionController;
 
   // ----- Shared data access objects -----
   // Users are saved to users.csv (course starter code).
@@ -137,6 +152,47 @@ public class AppBuilder {
 
     final LogoutController logoutController = new LogoutController(logoutInteractor);
     loggedInView.setLogoutController(logoutController);
+    return this;
+  }
+
+  /**
+   * Adds Use Case 2: Log Contribution to the application
+   * @return this builder
+   */
+  public AppBuilder addLogContributionUseCase() {
+
+    // Get the current trip
+    String tripId = tripDataAccessObject.getCurrentTripId();
+    Trip trip = tripDataAccessObject.getTrip(tripId);
+
+    // Create ViewModel
+    logContributionViewModel = new LogContributionViewModel(trip);
+
+    // Create Presenter
+    final LogContributionOutputBoundary outputBoundary =
+            new LogContributionPresenter(logContributionViewModel);
+
+    // Create Interactor
+    final LogContributionInputBoundary interactor =
+            new LogContributionInteractor(
+                    userDataAccessObject,
+                    tripDataAccessObject,
+                    outputBoundary
+            );
+
+    // Create Controller
+    final LogContributionController controller =
+            new LogContributionController(interactor);
+
+    // Create View
+    logContributionView = new LogContributionView(
+            logContributionViewModel,
+            controller
+    );
+
+    // Add View to CardLayout
+    cardPanel.add(logContributionView, "LOG_CONTRIBUTION");
+
     return this;
   }
 
