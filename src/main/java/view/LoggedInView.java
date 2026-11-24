@@ -104,11 +104,11 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
     buttons.add(logExpenseButton);
 
     logExpenseButton.addActionListener(
-            evt -> {
-              if (onOpenLogExpense != null) {
-                onOpenLogExpense.run();
-              }
-            });
+        evt -> {
+          if (onOpenLogExpense != null) {
+            onOpenLogExpense.run();
+          }
+        });
   }
 
   /**

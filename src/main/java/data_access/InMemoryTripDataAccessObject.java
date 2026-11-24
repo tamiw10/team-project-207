@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import use_case.log_expense.LogExpenseDataAccessInterface;
+
 /**
  * Keeps trips and everything logged against them in memory. Use this in unit tests. {@link
  * JsonFileTripDataAccessObject} adds saving to a file on top of it.

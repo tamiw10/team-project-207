@@ -10,33 +10,33 @@ import java.util.List;
  */
 public interface LogExpenseDataAccessInterface {
 
-    /**
-     * Returns the id of the trip currently open in the application.
-     *
-     * @return the open trip's id, or {@code null} if no trip is open
-     */
-    String getCurrentTripId();
+  /**
+   * Returns the id of the trip currently open in the application.
+   *
+   * @return the open trip's id, or {@code null} if no trip is open
+   */
+  String getCurrentTripId();
 
-    /**
-     * Looks up a {@link Trip} by its unique identifier.
-     *
-     * @param tripId the trip id to look up
-     * @return the matching {@link Trip}, or {@code null} if none exists
-     */
-    Trip getTrip(String tripId);
+  /**
+   * Looks up a {@link Trip} by its unique identifier.
+   *
+   * @param tripId the trip id to look up
+   * @return the matching {@link Trip}, or {@code null} if none exists
+   */
+  Trip getTrip(String tripId);
 
-    /**
-     * Persists a newly created {@link Expense}.
-     *
-     * @param expense the expense to save
-     */
-    void saveExpense(Expense expense);
+  /**
+   * Persists a newly created {@link Expense}.
+   *
+   * @param expense the expense to save
+   */
+  void saveExpense(Expense expense);
 
-    /**
-     * Returns every {@link Expense} recorded for the given trip, in the order logged.
-     *
-     * @param tripId the id of the trip
-     * @return the list of expenses belonging to that trip
-     */
-    List<Expense> getExpenses(String tripId);
+  /**
+   * Returns every {@link Expense} recorded for the given trip, in the order logged.
+   *
+   * @param tripId the id of the trip
+   * @return the list of expenses belonging to that trip
+   */
+  List<Expense> getExpenses(String tripId);
 }

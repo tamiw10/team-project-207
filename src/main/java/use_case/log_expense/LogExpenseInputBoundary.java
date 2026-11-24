@@ -6,11 +6,11 @@ package use_case.log_expense;
  */
 public interface LogExpenseInputBoundary {
 
-    /**
-     * Validates the submitted expense, converts foreign currency amounts into the trip's home
-     * currency, persists the expense, and notifies the output boundary.
-     *
-     * @param inputData the {@link LogExpenseInputData} containing the user's expense fields
-     */
-    void execute(LogExpenseInputData inputData);
+  /**
+   * Validates the submitted expense, converts foreign currency amounts into the trip's home
+   * currency, persists the expense, and notifies the output boundary.
+   *
+   * @param inputData the {@link LogExpenseInputData} containing the user's expense fields
+   */
+  void execute(LogExpenseInputData inputData);
 }

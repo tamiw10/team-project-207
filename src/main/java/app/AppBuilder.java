@@ -3,8 +3,10 @@ package app;
 import data_access.FileUserDataAccessObject;
 import data_access.FrankfurterExchangeRateGateway;
 import data_access.JsonFileTripDataAccessObject;
+import entity.Trip;
 import entity.UserFactory;
 import interface_adapter.ViewManagerModel;
+import interface_adapter.add_expense.*;
 import interface_adapter.logged_in.ChangePasswordController;
 import interface_adapter.logged_in.ChangePasswordPresenter;
 import interface_adapter.logged_in.LoggedInViewModel;
@@ -17,10 +19,12 @@ import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
 import java.awt.*;
+import java.util.List;
 import javax.swing.*;
 import use_case.change_password.ChangePasswordInputBoundary;
 import use_case.change_password.ChangePasswordInteractor;
 import use_case.change_password.ChangePasswordOutputBoundary;
+import use_case.log_expense.*;
 import use_case.login.LoginInputBoundary;
 import use_case.login.LoginInteractor;
 import use_case.login.LoginOutputBoundary;
@@ -30,15 +34,11 @@ import use_case.logout.LogoutOutputBoundary;
 import use_case.signup.SignupInputBoundary;
 import use_case.signup.SignupInteractor;
 import use_case.signup.SignupOutputBoundary;
+import view.AddExpenseView;
 import view.LoggedInView;
 import view.LoginView;
 import view.SignupView;
 import view.ViewManager;
-import entity.Trip;
-import java.util.List;
-import interface_adapter.add_expense.*;
-import use_case.log_expense.*;
-import view.AddExpenseView;
 
 public class AppBuilder {
   private final JPanel cardPanel = new JPanel();
@@ -180,14 +180,14 @@ public class AppBuilder {
    */
   public AppBuilder addLogExpenseUseCase() {
     final LogExpenseOutputBoundary logExpenseOutputBoundary =
-            new LogExpensePresenter(addExpenseViewModel);
+        new LogExpensePresenter(addExpenseViewModel);
 
     final LogExpenseInputBoundary logExpenseInteractor =
-            new LogExpenseInteractor(
-                    tripDataAccessObject, exchangeRateGateway, logExpenseOutputBoundary);
+        new LogExpenseInteractor(
+            tripDataAccessObject, exchangeRateGateway, logExpenseOutputBoundary);
 
     final LogExpenseController logExpenseController =
-            new LogExpenseController(logExpenseInteractor);
+        new LogExpenseController(logExpenseInteractor);
     addExpenseView.setLogExpenseController(logExpenseController);
 
     if (loggedInView != null) {
@@ -222,8 +222,8 @@ public class AppBuilder {
       state.setTripName(trip.getName());
       state.setHomeCurrency(trip.getHomeCurrency());
       state.setExpenses(
-              LogExpensePresenter.formatExpenses(
-                      tripDataAccessObject.getExpenses(trip.getId()), trip.getHomeCurrency()));
+          LogExpensePresenter.formatExpenses(
+              tripDataAccessObject.getExpenses(trip.getId()), trip.getHomeCurrency()));
     } else {
       state.setTripId("");
       state.setTripName("");

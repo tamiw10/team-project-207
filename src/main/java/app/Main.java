@@ -7,16 +7,16 @@ public class Main {
     AppBuilder appBuilder = new AppBuilder();
     JFrame application =
         appBuilder
-                .addLoginView()
-                .addSignupView()
-                .addLoggedInView()
-                .addAddExpenseView()
-                .addSignupUseCase()
-                .addLoginUseCase()
-                .addChangePasswordUseCase()
-                .addLogoutUseCase()
-                .addLogExpenseUseCase()
-                .build();
+            .addLoginView()
+            .addSignupView()
+            .addLoggedInView()
+            .addAddExpenseView()
+            .addSignupUseCase()
+            .addLoginUseCase()
+            .addChangePasswordUseCase()
+            .addLogoutUseCase()
+            .addLogExpenseUseCase()
+            .build();
 
     application.pack();
     application.setLocationRelativeTo(null);

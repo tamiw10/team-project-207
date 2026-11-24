@@ -7,6 +7,6 @@ package interface_adapter.add_expense;
  */
 public interface AddExpenseViewModelListener {
 
-    /** Called when the {@link AddExpenseViewModel} state has changed. */
-    void stateChanged();
+  /** Called when the {@link AddExpenseViewModel} state has changed. */
+  void stateChanged();
 }
