@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import use_case.create_trip.CreateTripDataAccessInterface;
 
 /**
  * Keeps trips and everything logged against them in memory. Use this in unit tests. {@link
@@ -19,7 +20,7 @@ import java.util.Map;
  * need a new method, add it here and to {@link JsonFileTripDataAccessObject} only if it changes
  * stored data.
  */
-public class InMemoryTripDataAccessObject {
+public class InMemoryTripDataAccessObject implements CreateTripDataAccessInterface {
 
   private final Map<String, Trip> trips = new LinkedHashMap<>();
   private final Map<String, Expense> expenses = new LinkedHashMap<>();
@@ -35,6 +36,7 @@ public class InMemoryTripDataAccessObject {
    *
    * @param tripId the open trip's id, or null if no trip is open
    */
+  @Override
   public void setCurrentTripId(String tripId) {
     this.currentTripId = tripId;
   }
@@ -55,6 +57,7 @@ public class InMemoryTripDataAccessObject {
    *
    * @param trip the trip to save
    */
+  @Override
   public void saveTrip(Trip trip) {
     trips.put(trip.getId(), trip);
     onDataChanged();

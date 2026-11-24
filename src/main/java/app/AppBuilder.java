@@ -5,6 +5,9 @@ import data_access.FrankfurterExchangeRateGateway;
 import data_access.JsonFileTripDataAccessObject;
 import entity.UserFactory;
 import interface_adapter.ViewManagerModel;
+import interface_adapter.create_trip.CreateTripController;
+import interface_adapter.create_trip.CreateTripPresenter;
+import interface_adapter.create_trip.CreateTripViewModel;
 import interface_adapter.logged_in.ChangePasswordController;
 import interface_adapter.logged_in.ChangePasswordPresenter;
 import interface_adapter.logged_in.LoggedInViewModel;
@@ -16,11 +19,15 @@ import interface_adapter.logout.LogoutPresenter;
 import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
+import interface_adapter.trip.TripViewModel;
 import java.awt.*;
 import javax.swing.*;
 import use_case.change_password.ChangePasswordInputBoundary;
 import use_case.change_password.ChangePasswordInteractor;
 import use_case.change_password.ChangePasswordOutputBoundary;
+import use_case.create_trip.CreateTripInputBoundary;
+import use_case.create_trip.CreateTripInteractor;
+import use_case.create_trip.CreateTripOutputBoundary;
 import use_case.login.LoginInputBoundary;
 import use_case.login.LoginInteractor;
 import use_case.login.LoginOutputBoundary;
@@ -30,9 +37,11 @@ import use_case.logout.LogoutOutputBoundary;
 import use_case.signup.SignupInputBoundary;
 import use_case.signup.SignupInteractor;
 import use_case.signup.SignupOutputBoundary;
+import view.CreateTripView;
 import view.LoggedInView;
 import view.LoginView;
 import view.SignupView;
+import view.TripView;
 import view.ViewManager;
 
 public class AppBuilder {
@@ -60,6 +69,10 @@ public class AppBuilder {
   private LoggedInViewModel loggedInViewModel;
   private LoggedInView loggedInView;
   private LoginView loginView;
+  private CreateTripViewModel createTripViewModel;
+  private CreateTripView createTripView;
+  private TripViewModel tripViewModel;
+  private TripView tripView;
 
   public AppBuilder() {
     cardPanel.setLayout(cardLayout);
@@ -83,6 +96,30 @@ public class AppBuilder {
     loggedInViewModel = new LoggedInViewModel();
     loggedInView = new LoggedInView(loggedInViewModel);
     cardPanel.add(loggedInView, LoggedInViewModel.VIEW_NAME);
+    return this;
+  }
+
+  /**
+   * Adds the form for creating a trip.
+   *
+   * @return this builder
+   */
+  public AppBuilder addCreateTripView() {
+    createTripViewModel = new CreateTripViewModel();
+    createTripView = new CreateTripView(createTripViewModel);
+    cardPanel.add(createTripView, CreateTripViewModel.VIEW_NAME);
+    return this;
+  }
+
+  /**
+   * Adds the screen that shows an open trip.
+   *
+   * @return this builder
+   */
+  public AppBuilder addTripView() {
+    tripViewModel = new TripViewModel();
+    tripView = new TripView(tripViewModel);
+    cardPanel.add(tripView, TripViewModel.VIEW_NAME);
     return this;
   }
 
@@ -137,6 +174,30 @@ public class AppBuilder {
 
     final LogoutController logoutController = new LogoutController(logoutInteractor);
     loggedInView.setLogoutController(logoutController);
+    return this;
+  }
+
+  /**
+   * Adds the Create Trip Use Case to the application.
+   *
+   * @return this builder
+   */
+  public AppBuilder addCreateTripUseCase() {
+    final CreateTripOutputBoundary createTripOutputBoundary =
+        new CreateTripPresenter(viewManagerModel, createTripViewModel, tripViewModel);
+
+    final CreateTripInputBoundary createTripInteractor =
+        new CreateTripInteractor(
+            userDataAccessObject,
+            tripDataAccessObject,
+            exchangeRateGateway,
+            createTripOutputBoundary);
+
+    final CreateTripController createTripController =
+        new CreateTripController(createTripInteractor);
+    createTripView.setCreateTripController(createTripController);
+    tripView.setCreateTripController(createTripController);
+    loggedInView.setCreateTripController(createTripController);
     return this;
   }
 
