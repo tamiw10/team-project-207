@@ -1,5 +1,6 @@
 package view;
 
+import interface_adapter.create_trip.CreateTripController;
 import interface_adapter.logged_in.ChangePasswordController;
 import interface_adapter.logged_in.LoggedInState;
 import interface_adapter.logged_in.LoggedInViewModel;
@@ -19,15 +20,20 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
   private final JLabel passwordErrorField = new JLabel();
   private ChangePasswordController changePasswordController = null;
   private LogoutController logoutController;
+  private CreateTripController createTripController;
 
   private final JLabel username;
 
   private final JButton logOut;
+  private final JButton newTrip;
 
   private final JTextField passwordInputField = new JTextField(15);
   private final JButton changePassword;
   private final JButton dailyBudget = new JButton("Daily Budget");
   private Runnable openDailyBudgetAction = () -> {};
+
+  private Runnable onOpenLogExpense;
+  private final JButton logExpenseButton;
 
   public LoggedInView(LoggedInViewModel loggedInViewModel) {
     this.loggedInViewModel = loggedInViewModel;
@@ -43,6 +49,8 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
     username = new JLabel();
 
     final JPanel buttons = new JPanel();
+    newTrip = new JButton("New Trip");
+    buttons.add(newTrip);
     logOut = new JButton("Log Out");
     buttons.add(logOut);
 
@@ -53,6 +61,7 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
     buttons.add(dailyBudget);
 
     logOut.addActionListener(this);
+    newTrip.addActionListener(evt -> createTripController.openForm());
 
     this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
@@ -101,6 +110,16 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
     this.add(passwordInfo);
     this.add(passwordErrorField);
     this.add(buttons);
+
+    logExpenseButton = new JButton("Log Expense");
+    buttons.add(logExpenseButton);
+
+    logExpenseButton.addActionListener(
+        evt -> {
+          if (onOpenLogExpense != null) {
+            onOpenLogExpense.run();
+          }
+        });
   }
 
   /**
@@ -120,6 +139,10 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
 
   public void setLogoutController(LogoutController logoutController) {
     this.logoutController = logoutController;
+  }
+
+  public void setCreateTripController(CreateTripController createTripController) {
+    this.createTripController = createTripController;
   }
 
   /** Connects the entry point for the trip budget screen. */
@@ -145,5 +168,14 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
     } else {
       JOptionPane.showMessageDialog(this, state.getPasswordError());
     }
+  }
+
+  /**
+   * Sets the callback invoked when the user clicks the Log Expense button.
+   *
+   * @param onOpenLogExpense the navigation callback
+   */
+  public void setOnOpenLogExpense(Runnable onOpenLogExpense) {
+    this.onOpenLogExpense = onOpenLogExpense;
   }
 }
