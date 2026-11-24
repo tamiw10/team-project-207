@@ -10,12 +10,14 @@ public class Main {
             .addLoginView()
             .addSignupView()
             .addLoggedInView()
+            .addAddExpenseView()
             .addCreateTripView()
             .addTripView()
             .addSignupUseCase()
             .addLoginUseCase()
             .addChangePasswordUseCase()
             .addLogoutUseCase()
+            .addLogExpenseUseCase()
             .addCreateTripUseCase()
             .build();
 

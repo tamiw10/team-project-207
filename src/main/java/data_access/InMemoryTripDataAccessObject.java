@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import use_case.log_expense.LogExpenseDataAccessInterface;
 import use_case.create_trip.CreateTripDataAccessInterface;
 
 /**
@@ -20,6 +21,7 @@ import use_case.create_trip.CreateTripDataAccessInterface;
  * need a new method, add it here and to {@link JsonFileTripDataAccessObject} only if it changes
  * stored data.
  */
+public class InMemoryTripDataAccessObject implements LogExpenseDataAccessInterface {
 public class InMemoryTripDataAccessObject implements CreateTripDataAccessInterface {
 
   private final Map<String, Trip> trips = new LinkedHashMap<>();
