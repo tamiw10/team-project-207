@@ -1,5 +1,6 @@
 package view;
 
+import interface_adapter.create_trip.CreateTripController;
 import interface_adapter.logged_in.ChangePasswordController;
 import interface_adapter.logged_in.LoggedInState;
 import interface_adapter.logged_in.LoggedInViewModel;
@@ -19,10 +20,12 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
   private final JLabel passwordErrorField = new JLabel();
   private ChangePasswordController changePasswordController = null;
   private LogoutController logoutController;
+  private CreateTripController createTripController;
 
   private final JLabel username;
 
   private final JButton logOut;
+  private final JButton newTrip;
 
   private final JTextField passwordInputField = new JTextField(15);
   private final JButton changePassword;
@@ -44,6 +47,8 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
     username = new JLabel();
 
     final JPanel buttons = new JPanel();
+    newTrip = new JButton("New Trip");
+    buttons.add(newTrip);
     logOut = new JButton("Log Out");
     buttons.add(logOut);
 
@@ -51,6 +56,7 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
     buttons.add(changePassword);
 
     logOut.addActionListener(this);
+    newTrip.addActionListener(evt -> createTripController.openForm());
 
     this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
@@ -128,6 +134,10 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
 
   public void setLogoutController(LogoutController logoutController) {
     this.logoutController = logoutController;
+  }
+
+  public void setCreateTripController(CreateTripController createTripController) {
+    this.createTripController = createTripController;
   }
 
   /** The logged-in state was updated. */

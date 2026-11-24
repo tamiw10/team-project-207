@@ -11,11 +11,14 @@ public class Main {
             .addSignupView()
             .addLoggedInView()
             .addAddExpenseView()
+            .addCreateTripView()
+            .addTripView()
             .addSignupUseCase()
             .addLoginUseCase()
             .addChangePasswordUseCase()
             .addLogoutUseCase()
             .addLogExpenseUseCase()
+            .addCreateTripUseCase()
             .build();
 
     application.pack();

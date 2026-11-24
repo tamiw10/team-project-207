@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import use_case.change_password.ChangePasswordUserDataAccessInterface;
+import use_case.create_trip.CreateTripUserDataAccessInterface;
 import use_case.login.LoginUserDataAccessInterface;
 import use_case.logout.LogoutUserDataAccessInterface;
 import use_case.signup.SignupUserDataAccessInterface;
@@ -16,7 +17,8 @@ public class FileUserDataAccessObject
     implements SignupUserDataAccessInterface,
         LoginUserDataAccessInterface,
         ChangePasswordUserDataAccessInterface,
-        LogoutUserDataAccessInterface {
+        LogoutUserDataAccessInterface,
+        CreateTripUserDataAccessInterface {
 
   private static final String HEADER = "username,password";
 
