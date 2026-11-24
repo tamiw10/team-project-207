@@ -6,10 +6,16 @@ import data_access.JsonFileTripDataAccessObject;
 import entity.Trip;
 import entity.UserFactory;
 import interface_adapter.ViewManagerModel;
-import interface_adapter.add_expense.*;
+import interface_adapter.add_expense.AddExpenseState;
+import interface_adapter.add_expense.AddExpenseViewModel;
+import interface_adapter.add_expense.LogExpenseController;
+import interface_adapter.add_expense.LogExpensePresenter;
 import interface_adapter.create_trip.CreateTripController;
 import interface_adapter.create_trip.CreateTripPresenter;
 import interface_adapter.create_trip.CreateTripViewModel;
+import interface_adapter.daily_budget.DailyBudgetController;
+import interface_adapter.daily_budget.DailyBudgetPresenter;
+import interface_adapter.daily_budget.DailyBudgetViewModel;
 import interface_adapter.logged_in.ChangePasswordController;
 import interface_adapter.logged_in.ChangePasswordPresenter;
 import interface_adapter.logged_in.LoggedInViewModel;
@@ -28,10 +34,15 @@ import javax.swing.*;
 import use_case.change_password.ChangePasswordInputBoundary;
 import use_case.change_password.ChangePasswordInteractor;
 import use_case.change_password.ChangePasswordOutputBoundary;
-import use_case.log_expense.*;
 import use_case.create_trip.CreateTripInputBoundary;
 import use_case.create_trip.CreateTripInteractor;
 import use_case.create_trip.CreateTripOutputBoundary;
+import use_case.daily_budget.DailyBudgetInputBoundary;
+import use_case.daily_budget.DailyBudgetInteractor;
+import use_case.daily_budget.DailyBudgetOutputBoundary;
+import use_case.log_expense.LogExpenseInputBoundary;
+import use_case.log_expense.LogExpenseInteractor;
+import use_case.log_expense.LogExpenseOutputBoundary;
 import use_case.login.LoginInputBoundary;
 import use_case.login.LoginInteractor;
 import use_case.login.LoginOutputBoundary;
@@ -43,6 +54,7 @@ import use_case.signup.SignupInteractor;
 import use_case.signup.SignupOutputBoundary;
 import view.AddExpenseView;
 import view.CreateTripView;
+import view.DailyBudgetView;
 import view.LoggedInView;
 import view.LoginView;
 import view.SignupView;
@@ -80,6 +92,8 @@ public class AppBuilder {
   private CreateTripView createTripView;
   private TripViewModel tripViewModel;
   private TripView tripView;
+  private DailyBudgetViewModel dailyBudgetViewModel;
+  private DailyBudgetView dailyBudgetView;
 
   public AppBuilder() {
     cardPanel.setLayout(cardLayout);
@@ -127,6 +141,14 @@ public class AppBuilder {
     tripViewModel = new TripViewModel();
     tripView = new TripView(tripViewModel);
     cardPanel.add(tripView, TripViewModel.VIEW_NAME);
+    return this;
+  }
+
+  /** Adds the screen for viewing and updating a trip's budget. */
+  public AppBuilder addDailyBudgetView() {
+    dailyBudgetViewModel = new DailyBudgetViewModel();
+    dailyBudgetView = new DailyBudgetView(dailyBudgetViewModel);
+    cardPanel.add(dailyBudgetView, DailyBudgetViewModel.VIEW_NAME);
     return this;
   }
 
@@ -218,6 +240,26 @@ public class AppBuilder {
     viewManagerModel.notifyViewChanged();
 
     return application;
+  }
+
+  /** Wires the budget screen and gives signed-in users access to it. */
+  public AppBuilder addDailyBudgetUseCase() {
+    final DailyBudgetOutputBoundary presenter = new DailyBudgetPresenter(dailyBudgetViewModel);
+    final DailyBudgetInputBoundary interactor = new DailyBudgetInteractor(
+        tripDataAccessObject, userDataAccessObject::getCurrentUsername, presenter);
+    final DailyBudgetController controller = new DailyBudgetController(interactor);
+    dailyBudgetView.setDailyBudgetController(controller);
+    dailyBudgetView.setBackAction(() -> showView(LoggedInViewModel.VIEW_NAME));
+    loggedInView.setOpenDailyBudgetAction(() -> {
+      controller.open();
+      showView(DailyBudgetViewModel.VIEW_NAME);
+    });
+    return this;
+  }
+
+  private void showView(String viewName) {
+    viewManagerModel.setState(viewName);
+    viewManagerModel.notifyViewChanged();
   }
 
   /**

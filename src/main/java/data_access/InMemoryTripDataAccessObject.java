@@ -8,8 +8,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import use_case.log_expense.LogExpenseDataAccessInterface;
 import use_case.create_trip.CreateTripDataAccessInterface;
+import use_case.daily_budget.DailyBudgetDataAccessInterface;
+import use_case.log_expense.LogExpenseDataAccessInterface;
 
 /**
  * Keeps trips and everything logged against them in memory. Use this in unit tests. {@link
@@ -21,8 +22,9 @@ import use_case.create_trip.CreateTripDataAccessInterface;
  * need a new method, add it here and to {@link JsonFileTripDataAccessObject} only if it changes
  * stored data.
  */
-public class InMemoryTripDataAccessObject implements LogExpenseDataAccessInterface {
-public class InMemoryTripDataAccessObject implements CreateTripDataAccessInterface {
+public class InMemoryTripDataAccessObject
+    implements CreateTripDataAccessInterface, DailyBudgetDataAccessInterface,
+        LogExpenseDataAccessInterface {
 
   private final Map<String, Trip> trips = new LinkedHashMap<>();
   private final Map<String, Expense> expenses = new LinkedHashMap<>();
@@ -48,6 +50,7 @@ public class InMemoryTripDataAccessObject implements CreateTripDataAccessInterfa
    *
    * @return the trip id, or null if no trip is open
    */
+  @Override
   public String getCurrentTripId() {
     return currentTripId;
   }
@@ -71,6 +74,7 @@ public class InMemoryTripDataAccessObject implements CreateTripDataAccessInterfa
    * @param tripId the id to look up
    * @return the trip, or null if there is none
    */
+  @Override
   public Trip getTrip(String tripId) {
     return trips.get(tripId);
   }
@@ -91,6 +95,7 @@ public class InMemoryTripDataAccessObject implements CreateTripDataAccessInterfa
    * @param username the user
    * @return the user's trips
    */
+  @Override
   public List<Trip> getTripsForMember(String username) {
     final List<Trip> result = new ArrayList<>();
     for (Trip trip : trips.values()) {
@@ -99,6 +104,19 @@ public class InMemoryTripDataAccessObject implements CreateTripDataAccessInterfa
       }
     }
     return result;
+  }
+
+  @Override
+  public boolean updateDailyBudget(Trip trip, double amount) {
+    final double previousBudget = trip.getDailyBudget();
+    trip.setDailyBudget(amount);
+    try {
+      saveTrip(trip);
+      return true;
+    } catch (DataAccessException exception) {
+      trip.setDailyBudget(previousBudget);
+      return false;
+    }
   }
 
   // ----- Expenses -----
@@ -119,6 +137,7 @@ public class InMemoryTripDataAccessObject implements CreateTripDataAccessInterfa
    * @param tripId the trip
    * @return the trip's expenses
    */
+  @Override
   public List<Expense> getExpenses(String tripId) {
     final List<Expense> result = new ArrayList<>();
     for (Expense expense : expenses.values()) {

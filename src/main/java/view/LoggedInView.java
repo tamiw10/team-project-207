@@ -29,6 +29,8 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
 
   private final JTextField passwordInputField = new JTextField(15);
   private final JButton changePassword;
+  private final JButton dailyBudget = new JButton("Daily Budget");
+  private Runnable openDailyBudgetAction = () -> {};
 
   private Runnable onOpenLogExpense;
   private final JButton logExpenseButton;
@@ -54,6 +56,9 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
 
     changePassword = new JButton("Change Password");
     buttons.add(changePassword);
+    dailyBudget.setVisible(false);
+    dailyBudget.addActionListener(event -> openDailyBudgetAction.run());
+    buttons.add(dailyBudget);
 
     logOut.addActionListener(this);
     newTrip.addActionListener(evt -> createTripController.openForm());
@@ -138,6 +143,12 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
 
   public void setCreateTripController(CreateTripController createTripController) {
     this.createTripController = createTripController;
+  }
+
+  /** Connects the entry point for the trip budget screen. */
+  public void setOpenDailyBudgetAction(Runnable openBudget) {
+    openDailyBudgetAction = openBudget;
+    dailyBudget.setVisible(true);
   }
 
   /** The logged-in state was updated. */

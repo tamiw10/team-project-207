@@ -13,12 +13,14 @@ public class Main {
             .addAddExpenseView()
             .addCreateTripView()
             .addTripView()
+            .addDailyBudgetView()
             .addSignupUseCase()
             .addLoginUseCase()
             .addChangePasswordUseCase()
             .addLogoutUseCase()
             .addLogExpenseUseCase()
             .addCreateTripUseCase()
+            .addDailyBudgetUseCase()
             .build();
 
     application.pack();
