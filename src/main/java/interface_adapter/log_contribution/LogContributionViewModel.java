@@ -7,20 +7,10 @@ import java.util.List;
 
 public class LogContributionViewModel {
 
-    private final Trip trip;
+    public final String VIEW_NAME = "log a contribution";
 
-    // might need to change this down the line once branch is merged with others
-    public LogContributionViewModel(Trip trip) {
-        this.trip = trip;
-    }
     private final List<LogContributionViewModelListener> listeners = new ArrayList<>();
     private LogContributionState state = new LogContributionState();
-
-    public String getTripName() { return trip.getName(); }
-
-    public String getTripId() { return trip.getId(); }
-
-    public String getCurrency() { return trip.getHomeCurrency(); }
 
     public LogContributionState getState() { return state; }
 

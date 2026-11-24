@@ -1,16 +1,12 @@
 package data_access;
 
-import entity.Contribution;
-import entity.Trip;
 import entity.User;
 import entity.UserFactory;
 import java.io.*;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import use_case.change_password.ChangePasswordUserDataAccessInterface;
-import use_case.log_contribution.LogContributionTripDataAccessInterface;
 import use_case.log_contribution.LogContributionUserDataAccessInterface;
 import use_case.login.LoginUserDataAccessInterface;
 import use_case.logout.LogoutUserDataAccessInterface;
@@ -22,8 +18,7 @@ public class FileUserDataAccessObject
         LoginUserDataAccessInterface,
         ChangePasswordUserDataAccessInterface,
         LogoutUserDataAccessInterface,
-        LogContributionUserDataAccessInterface,
-        LogContributionTripDataAccessInterface{
+        LogContributionUserDataAccessInterface {
 
   private static final String HEADER = "username,password";
 
@@ -123,30 +118,5 @@ public class FileUserDataAccessObject
     // Replace the User object in the map
     accounts.put(user.getName(), user);
     save();
-  }
-
-  @Override
-  public Trip getTrip(String tripId) {
-    return null;
-  }
-
-  @Override
-  public String getCurrentTripId() {
-    return "";
-  }
-
-  @Override
-  public void saveContribution(Contribution contribution) {
-
-  }
-
-  @Override
-  public List<Contribution> getContributions(String tripId) {
-    return List.of();
-  }
-
-  @Override
-  public List<Contribution> getContributions(String tripId, String username) {
-    return List.of();
   }
 }

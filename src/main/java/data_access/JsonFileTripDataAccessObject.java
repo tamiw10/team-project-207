@@ -22,8 +22,7 @@ import use_case.log_contribution.LogContributionTripDataAccessInterface;
  * <p>The whole file is rewritten after every change. That is simple and fast enough for the amount
  * of data one group's trip produces.
  */
-public class JsonFileTripDataAccessObject extends InMemoryTripDataAccessObject implements
-        LogContributionTripDataAccessInterface {
+public class JsonFileTripDataAccessObject extends InMemoryTripDataAccessObject {
 
   private static final String TRIPS = "trips";
   private static final String EXPENSES = "expenses";
