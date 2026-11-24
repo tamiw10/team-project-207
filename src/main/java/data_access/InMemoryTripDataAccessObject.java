@@ -11,6 +11,8 @@ import java.util.Map;
 import use_case.create_trip.CreateTripDataAccessInterface;
 import use_case.daily_budget.DailyBudgetDataAccessInterface;
 import use_case.log_expense.LogExpenseDataAccessInterface;
+import use_case.suggest_idea.SuggestIdeaDataAccessInterface;
+import use_case.vote.VoteDataAccessInterface;
 
 /**
  * Keeps trips and everything logged against them in memory. Use this in unit tests. {@link
@@ -23,8 +25,11 @@ import use_case.log_expense.LogExpenseDataAccessInterface;
  * stored data.
  */
 public class InMemoryTripDataAccessObject
-    implements CreateTripDataAccessInterface, DailyBudgetDataAccessInterface,
-        LogExpenseDataAccessInterface {
+    implements CreateTripDataAccessInterface,
+        DailyBudgetDataAccessInterface,
+        LogExpenseDataAccessInterface,
+        SuggestIdeaDataAccessInterface,
+        VoteDataAccessInterface {
 
   private final Map<String, Trip> trips = new LinkedHashMap<>();
   private final Map<String, Expense> expenses = new LinkedHashMap<>();
@@ -184,9 +189,27 @@ public class InMemoryTripDataAccessObject
    *
    * @param idea the idea to save
    */
+  @Override
   public void saveActivityIdea(ActivityIdea idea) {
     activityIdeas.put(idea.getId(), idea);
     onDataChanged();
+  }
+
+  /**
+   * Saves an activity idea after its votes changed.
+   *
+   * @param idea the idea to save
+   * @return true if it was saved, false if it could not be stored
+   */
+  @Override
+  public boolean saveVote(ActivityIdea idea) {
+    boolean saved = true;
+    try {
+      saveActivityIdea(idea);
+    } catch (DataAccessException ex) {
+      saved = false;
+    }
+    return saved;
   }
 
   /**
@@ -205,6 +228,7 @@ public class InMemoryTripDataAccessObject
    * @param tripId the trip
    * @return the trip's activity ideas
    */
+  @Override
   public List<ActivityIdea> getActivityIdeas(String tripId) {
     final List<ActivityIdea> result = new ArrayList<>();
     for (ActivityIdea idea : activityIdeas.values()) {

@@ -14,6 +14,7 @@ public class Main {
             .addCreateTripView()
             .addTripView()
             .addDailyBudgetView()
+            .addActivitiesView()
             .addSignupUseCase()
             .addLoginUseCase()
             .addChangePasswordUseCase()
@@ -21,6 +22,8 @@ public class Main {
             .addLogExpenseUseCase()
             .addCreateTripUseCase()
             .addDailyBudgetUseCase()
+            .addVoteUseCase()
+            .addSuggestIdeaUseCase()
             .build();
 
     application.pack();

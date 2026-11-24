@@ -27,8 +27,14 @@ import interface_adapter.logout.LogoutPresenter;
 import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
+import interface_adapter.suggest_idea.SuggestIdeaController;
+import interface_adapter.suggest_idea.SuggestIdeaPresenter;
 import interface_adapter.trip.TripViewModel;
+import interface_adapter.vote.ActivitiesViewModel;
+import interface_adapter.vote.VoteController;
+import interface_adapter.vote.VotePresenter;
 import java.awt.*;
+import java.time.LocalDateTime;
 import java.util.List;
 import javax.swing.*;
 import use_case.change_password.ChangePasswordInputBoundary;
@@ -52,6 +58,13 @@ import use_case.logout.LogoutOutputBoundary;
 import use_case.signup.SignupInputBoundary;
 import use_case.signup.SignupInteractor;
 import use_case.signup.SignupOutputBoundary;
+import use_case.suggest_idea.SuggestIdeaInputBoundary;
+import use_case.suggest_idea.SuggestIdeaInteractor;
+import use_case.suggest_idea.SuggestIdeaOutputBoundary;
+import use_case.vote.VoteInputBoundary;
+import use_case.vote.VoteInteractor;
+import use_case.vote.VoteOutputBoundary;
+import view.ActivitiesView;
 import view.AddExpenseView;
 import view.CreateTripView;
 import view.DailyBudgetView;
@@ -94,6 +107,8 @@ public class AppBuilder {
   private TripView tripView;
   private DailyBudgetViewModel dailyBudgetViewModel;
   private DailyBudgetView dailyBudgetView;
+  private ActivitiesViewModel activitiesViewModel;
+  private ActivitiesView activitiesView;
 
   public AppBuilder() {
     cardPanel.setLayout(cardLayout);
@@ -149,6 +164,18 @@ public class AppBuilder {
     dailyBudgetViewModel = new DailyBudgetViewModel();
     dailyBudgetView = new DailyBudgetView(dailyBudgetViewModel);
     cardPanel.add(dailyBudgetView, DailyBudgetViewModel.VIEW_NAME);
+    return this;
+  }
+
+  /**
+   * Adds the screen for voting on activity ideas.
+   *
+   * @return this builder
+   */
+  public AppBuilder addActivitiesView() {
+    activitiesViewModel = new ActivitiesViewModel();
+    activitiesView = new ActivitiesView(activitiesViewModel);
+    cardPanel.add(activitiesView, ActivitiesViewModel.VIEW_NAME);
     return this;
   }
 
@@ -227,6 +254,41 @@ public class AppBuilder {
     createTripView.setCreateTripController(createTripController);
     tripView.setCreateTripController(createTripController);
     loggedInView.setCreateTripController(createTripController);
+    return this;
+  }
+
+  /**
+   * Adds the Vote on Activity Ideas Use Case to the application. Needs the logged-in and
+   * activities views to have been added first.
+   *
+   * @return this builder
+   */
+  public AppBuilder addVoteUseCase() {
+    final VoteOutputBoundary voteOutputBoundary =
+        new VotePresenter(viewManagerModel, activitiesViewModel);
+    final VoteInputBoundary voteInteractor =
+        new VoteInteractor(tripDataAccessObject, voteOutputBoundary);
+    final VoteController voteController = new VoteController(voteInteractor);
+    activitiesView.setVoteController(voteController);
+    activitiesView.setBackAction(() -> showView(LoggedInViewModel.VIEW_NAME));
+    loggedInView.setOpenActivitiesAction(
+        () -> voteController.open(loggedInViewModel.getState().getUsername()));
+    return this;
+  }
+
+  /**
+   * Adds the Suggest Activity Idea Use Case to the application. Needs the activities view to have
+   * been added first.
+   *
+   * @return this builder
+   */
+  public AppBuilder addSuggestIdeaUseCase() {
+    final SuggestIdeaOutputBoundary suggestIdeaOutputBoundary =
+        new SuggestIdeaPresenter(activitiesViewModel);
+    final SuggestIdeaInputBoundary suggestIdeaInteractor =
+        new SuggestIdeaInteractor(
+            tripDataAccessObject, suggestIdeaOutputBoundary, LocalDateTime::now);
+    activitiesView.setSuggestIdeaController(new SuggestIdeaController(suggestIdeaInteractor));
     return this;
   }
 
