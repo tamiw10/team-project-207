@@ -9,12 +9,9 @@ public class LogContributionPresenter implements LogContributionOutputBoundary {
 
     private final LogContributionViewModel logContributionViewModel;
     // is ViewManagerModel necessary? just copying signup presenter
-    private final ViewManagerModel viewManagerModel;
 
-    public LogContributionPresenter(LogContributionViewModel logContributionViewModel,
-                                    ViewManagerModel viewManagerModel) {
+    public LogContributionPresenter(LogContributionViewModel logContributionViewModel) {
         this.logContributionViewModel = logContributionViewModel;
-        this.viewManagerModel = viewManagerModel;
     }
 
     @Override
@@ -44,7 +41,11 @@ public class LogContributionPresenter implements LogContributionOutputBoundary {
 
     @Override
     public void prepareFailView(String errorMessage) {
-        //...
+        final LogContributionState state = logContributionViewModel.getState();
+        state.setStatusMessage(errorMessage);
+        state.setError(true);
+        state.setClearForm(false);
+        logContributionViewModel.notifyStateChanged();
     }
 
 }

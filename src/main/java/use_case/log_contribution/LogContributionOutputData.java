@@ -2,6 +2,9 @@ package use_case.log_contribution;
 
 /** Output data for Use Case 2: Log a Contribution */
 public class LogContributionOutputData {
+    private final String tripID;
+    private final String tripName;
+    private final String homeCurrency;
     private final double savingsGoal;
     private final double totalSaved;
     private final double amountRemaining;
@@ -16,7 +19,10 @@ public class LogContributionOutputData {
     private final double userProgress;
     private final double groupProgress;
 
-    public LogContributionOutputData(double savingsGoal,
+    public LogContributionOutputData(String tripID,
+                                     String tripName,
+                                     String homeCurrency,
+                                     double savingsGoal,
                                      double totalSaved,
                                      double amountRemaining,
                                      int weeksRemaining,
@@ -29,6 +35,9 @@ public class LogContributionOutputData {
                                      boolean groupGoalReached,
                                      double userProgress,
                                      double groupProgress) {
+        this.tripID = tripID;
+        this.tripName = tripName;
+        this.homeCurrency = homeCurrency;
         this.savingsGoal = savingsGoal;
         this.totalSaved = totalSaved;
         this.amountRemaining = amountRemaining;
@@ -44,6 +53,12 @@ public class LogContributionOutputData {
         this.groupProgress = groupProgress;
     }
 
+    public String getTripID() { return tripID; }
+
+    public String getTripName() { return tripName; }
+
+    public String getHomeCurrency() { return homeCurrency; }
+
     public double getSavingsGoal() {
         return savingsGoal;
     }
@@ -52,7 +67,7 @@ public class LogContributionOutputData {
         return totalSaved;
     }
 
-    public double getRemaining() {
+    public double getAmountRemaining() {
         return amountRemaining;
     }
 

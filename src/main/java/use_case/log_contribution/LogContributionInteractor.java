@@ -50,6 +50,8 @@ public class LogContributionInteractor implements LogContributionInputBoundary {
             return;
         }
         // Retrieve trip information
+        final String tripName = trip.getName();
+        final String homeCurrency = trip.getHomeCurrency();
         final String username = userDataAccessObject.getCurrentUsername();
         final String amountText = inputData.getAmount();
         final String dateText = inputData.getDate();
@@ -166,7 +168,10 @@ public class LogContributionInteractor implements LogContributionInputBoundary {
 
             // Prepare output
             LogContributionOutputData outputData =
-                    new LogContributionOutputData(savingsGoal,
+                    new LogContributionOutputData(tripID,
+                            tripName,
+                            homeCurrency,
+                            savingsGoal,
                             totalSaved,
                             amountRemaining,
                             weeksRemaining,
@@ -176,7 +181,9 @@ public class LogContributionInteractor implements LogContributionInputBoundary {
                             groupSaved,
                             groupGoal,
                             userGoalReached,
-                            groupGoalReached);
+                            groupGoalReached,
+                            userProgress,
+                            groupProgress);
 
             logContributionPresenter.prepareSuccessView(outputData);
         }
@@ -199,12 +206,15 @@ public class LogContributionInteractor implements LogContributionInputBoundary {
                                             .setScale(2, RoundingMode.HALF_UP);
             final double weeklyPace = weeklyPaceBig.doubleValue();
 
-            // On track/behind
+            // On/behind track
             final boolean onTrack = weeklyPace >= weeklyRequired;
 
             // Prepare output
             LogContributionOutputData outputData =
-                    new LogContributionOutputData(savingsGoal,
+                    new LogContributionOutputData(tripID,
+                            tripName,
+                            homeCurrency,
+                            savingsGoal,
                             totalSaved,
                             amountRemaining,
                             weeksRemaining,
@@ -214,7 +224,9 @@ public class LogContributionInteractor implements LogContributionInputBoundary {
                             groupSaved,
                             groupGoal,
                             userGoalReached,
-                            groupGoalReached);
+                            groupGoalReached,
+                            userProgress,
+                            groupProgress);
 
             logContributionPresenter.prepareSuccessView(outputData);
         }
