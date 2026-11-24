@@ -59,6 +59,7 @@ public class InMemoryTripDataAccessObject implements LogContributionTripDataAcce
    */
   public void saveTrip(Trip trip) {
     trips.put(trip.getId(), trip);
+    setCurrentTripId(trip.getId());
     onDataChanged();
   }
 

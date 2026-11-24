@@ -1,105 +1,161 @@
 package view;
 
+import interface_adapter.log_contribution.LogContributionController;
+import interface_adapter.log_contribution.LogContributionState;
 import interface_adapter.log_contribution.LogContributionViewModel;
 import interface_adapter.log_contribution.LogContributionViewModelListener;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-/** View when a user is logging a contribution (before trip) */
+/** View for Use Case 2: Log a Contribution */
 public class LogContributionView extends JPanel implements LogContributionViewModelListener {
-    // add implements ActionListener, LogContributionViewModelListener in class definition
-    // add log_contribution package to interface_adapter package
-        // add LogContributionViewModelListener interface to that package
 
-    // define variables
+    // variables
     private final LogContributionViewModel logContributionViewModel;
+    private final LogContributionController logContributionController;
 
-    // create labels
-    // title of frame will be the name of trip (pull from trip) -> or in Contributor classs?
-
-    private final JLabel myGoalDisplayLabel = new JLabel();
-    private final JLabel confirmationLabel = new JLabel();
-    private final JLabel savingsProgressLabel = new JLabel();
-    private final JLabel weeksRemainingLabel = new JLabel();
-    private final JLabel weeklyRequiredLabel = new JLabel();
-    private final JLabel weeklyPaceLabel = new JLabel();
+    // labels
+    // title of frame will be the name of trip (pull from trip)?
+    private final JLabel myGoalDisplayLabel = new JLabel(); // displays goal budget after it is logged
+    private final JLabel confirmationLabel = new JLabel(); // confirmation message displayed after contribution is logged
+    private final JLabel savingsProgressLabel = new JLabel(); // displays how much has been saved towards the goal
+    private final JLabel weeksRemainingLabel = new JLabel(); // displays weeks remaining until the trip
+    private final JLabel weeklyRequiredLabel = new JLabel(); // displays min amount user needs to save/week to meet their goal
+    private final JLabel weeklyPaceLabel = new JLabel(); // displays how much the user has saved per week on avg
     private final JLabel onTrackLabel = new JLabel();
-    private final JLabel groupProgressLabel = new JLabel();
+    private final JLabel groupProgressLabel = new JLabel(); // displays the total the group has saved towards the goal
 
     // title of page
-    private final JLabel LogSCLabel;
-    private final JLabel AmountLabel = new JLabel("Amount");
-    private final JLabel DateLabel = new JLabel("Date");
-    private final JLabel MyGoalLabel = new JLabel("My Goal");
+    private final JLabel logSCLabel;
+    private final JLabel amountLabel = new JLabel("Amount");
+    private final JLabel dateLabel = new JLabel("Date");
+    private final JLabel myGoalLabel = new JLabel("My Goal");
 
     // text fields
-    private final JTextField AmountField = new JTextField(10);
-    private final JTextField DateField = new JTextField(10);
-    private final JTextField MyGoalField = new JTextField(10);
+    private final JTextField amountField = new JTextField(10);
+    private final JTextField dateField = new JTextField(10);
+    private final JTextField myGoalField = new JTextField(10);
 
     // button
-    private final JButton LogCButton = new JButton("Log Contribution");
+    private final JButton logCButton = new JButton("Log Contribution");
 
     // progress bars
     private final JProgressBar personalProgressBar = new JProgressBar(0, 100);
     private final JProgressBar groupProgressBar = new JProgressBar(0, 100);
 
     // constructor
-    public LogContributionView(LogContributionViewModel logContributionViewModel){
+    public LogContributionView(LogContributionViewModel logContributionViewModel,
+                               LogContributionController logContributionController) {
 
         this.logContributionViewModel = logContributionViewModel;
+        this.logContributionController = logContributionController;
         this.logContributionViewModel.addListener(this);
         // relies on view model to have trip object stored
-        this.LogSCLabel = new JLabel("Log a saving contribution" + logContributionViewModel.getCurrency());
+        this.logSCLabel = new JLabel("Log a saving contribution" + logContributionViewModel.getCurrency());
 
-        // create LabelTextPanels (panels containing labels and text)
-        final LabelTextPanel AmountPanel = new LabelTextPanel(AmountLabel, AmountField);
-        final LabelTextPanel DatePanel = new LabelTextPanel(DateLabel, DateField);
-        final LabelTextPanel MyGoalPanel = new LabelTextPanel(MyGoalLabel, MyGoalField);
+        // LabelTextPanels (panels containing labels and text)
+        final LabelTextPanel amountPanel = new LabelTextPanel(amountLabel, amountField);
+        final LabelTextPanel datePanel = new LabelTextPanel(dateLabel, dateField);
+        final LabelTextPanel myGoalPanel = new LabelTextPanel(myGoalLabel, myGoalField);
 
-        // set layout
+        // layout
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         // add components
-        this.add(LogSCLabel);
-        this.add(AmountPanel);
-        this.add(DatePanel);
-        this.add(MyGoalPanel);
-        this.add(LogCButton);
+        this.add(logSCLabel);
+        this.add(amountPanel);
+        this.add(datePanel);
+        this.add(myGoalPanel);
+        this.add(logCButton);
+        this.add(confirmationLabel);
+        this.add(myGoalDisplayLabel);
+        this.add(savingsProgressLabel);
+        this.add(personalProgressBar);
+        this.add(weeksRemainingLabel);
+        this.add(weeklyRequiredLabel);
+        this.add(weeklyPaceLabel);
+        this.add(onTrackLabel);
+        this.add(groupProgressLabel);
+        this.add(groupProgressBar);
 
-        LogCButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String amount = AmountField.getText();
-                String date = DateField.getText();
-                String myGoal = MyGoalField.getText();
-                JOptionPane.showMessageDialog(null, "Contribution Logged");
+        // 2 cases; goal has already been logged, goal is being logged for first time
+        logCButton.addActionListener(evt -> {
+            String amountText = amountField.getText();
+            String dateText = dateField.getText();
+            String myGoalText = myGoalField.getText();
+            String tripID = logContributionViewModel.getTripId();
 
-            }
+            logContributionController.execute(tripID, amountText, dateText, myGoalText);
         });
 
+        // Initialize the view using the current state
+        updateView();
+
+    }
+
+    @Override
+    public void stateChanged() {
+        updateView();
     }
 
     // after first contribution and goal is logged
-    public void updateView(){
-        // Clear the amount and date fields
-        AmountField.setText("");
-        DateField.setText("");
+    public void updateView() {
+        LogContributionState state = logContributionViewModel.getState();
 
-        // Hide the goal input field
-        MyGoalField.setVisible(false);
+        myGoalField.setVisible(!state.isHasSavingsGoal());
+        myGoalLabel.setVisible(!state.isHasSavingsGoal());
+        myGoalDisplayLabel.setVisible(state.isHasSavingsGoal());
 
-        // Display the existing goal
-        // myGoalDisplayLabel.setText("My goal: " + myGoal);
+        confirmationLabel.setText(state.getStatusMessage());
 
-        // Display confirmation
-        confirmationLabel.setText("Contribution logged!");
+        myGoalDisplayLabel.setText("My goal: " + state.getSavingsGoal());
 
-        // Update savings progress
-        // Update weekly savings information
-        // Update group progress
+        savingsProgressLabel.setText(
+                state.getTotalSaved() + " saved"
+        );
+
+        weeksRemainingLabel.setText(
+                state.getWeeksRemaining() + " weeks remaining"
+        );
+
+        onTrackLabel.setText(
+                state.isOnTrack() ? "On track" : "Not on track"
+        );
+
+        groupProgressLabel.setText(
+                state.getGroupSaved() + " / " + state.getGroupGoal()
+        );
+
+        personalProgressBar.setValue(
+                (int) (Math.min(state.getUserProgress(), 1.0) * 100)
+        );
+
+        groupProgressBar.setValue(
+                (int) (Math.min(state.getGroupProgress(), 1.0) * 100)
+        );
+
+        weeklyRequiredLabel.setText(
+                "Required per week: " + state.getWeeklyRequired()
+        );
+
+        weeklyPaceLabel.setText(
+                "Current weekly pace: " + state.getWeeklyPace()
+        );
+
+        // Clear fields only when requested by the presenter
+        if (state.isClearForm()) {
+            amountField.setText("");
+            dateField.setText("");
+            myGoalField.setText("");
+        }
+
+        // Show error or success message
+        confirmationLabel.setForeground(
+                state.isError() ? java.awt.Color.RED : java.awt.Color.BLACK
+        );
+
+        // Hide weekly information when the goal is reached
+        weeklyRequiredLabel.setVisible(!state.isUserGoalReached());
+        weeklyPaceLabel.setVisible(!state.isUserGoalReached());
     }
-
 }

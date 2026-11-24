@@ -164,6 +164,7 @@ public class AppBuilder {
     // Get the current trip
     String tripId = tripDataAccessObject.getCurrentTripId();
     Trip trip = tripDataAccessObject.getTrip(tripId);
+    System.out.println("Current trip ID: " + tripDataAccessObject.getCurrentTripId());
 
     // Create ViewModel
     logContributionViewModel = new LogContributionViewModel(trip);

@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static java.lang.Math.*;
-import static jdk.internal.org.commonmark.text.Characters.isBlank;
 
 /** Interactor for Use Case 2: Log a Contribution
  * Validates contribution inputs against the open {@link Trip},
@@ -39,10 +38,10 @@ public class LogContributionInteractor implements LogContributionInputBoundary {
     @Override
     public void execute(LogContributionInputData inputData) {
         // Check if trip exists
-        final String tripID = isBlank(inputData.getTripId())
+        final String tripID = inputData.getTripId().isBlank()
                             ? tripDataAccessObject.getCurrentTripId()
                             : inputData.getTripId();
-        final Trip trip = isBlank(tripID)
+        final Trip trip = tripID.isBlank()
                         ? null
                         : tripDataAccessObject.getTrip(tripID);
         if (trip == null) {
@@ -62,7 +61,7 @@ public class LogContributionInteractor implements LogContributionInputBoundary {
         // 2a. The amount is not a number, or is zero or negative.
         final double amount;
         try {
-            if (isBlank(amountText)) {
+            if (amountText == null || amountText.isBlank()) {
                 logContributionPresenter.prepareFailView("Enter an amount first");
                 return;
             }
@@ -80,7 +79,7 @@ public class LogContributionInteractor implements LogContributionInputBoundary {
         // might want to add a check that user doesn't enter a date earlier than past contributions
         final LocalDate date;
         try {
-            if (isBlank(dateText)) {
+            if (dateText == null || dateText.isBlank()) {
                 logContributionPresenter.prepareFailView("Enter a date first");
                 return;
             }
@@ -98,7 +97,7 @@ public class LogContributionInteractor implements LogContributionInputBoundary {
         final double savingsGoal;
         if (!hasGoal) {
             try {
-                if (isBlank(savingsGoalText)) {
+                if (savingsGoalText == null || savingsGoalText.isBlank()) {
                     logContributionPresenter.prepareFailView("Enter a savings goal first");
                     return;
                 }
