@@ -3,8 +3,8 @@ package use_case.vote;
 import entity.ActivityIdea;
 import entity.Trip;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
+import use_case.idea_ranking.IdeaRanking;
 
 /**
  * The Vote Interactor. Each member has {@value #VOTES_PER_DAY} votes per day to spend on that day's
@@ -14,6 +14,8 @@ public class VoteInteractor implements VoteInputBoundary {
 
   /** How many votes each member gets for each day of the trip. */
   public static final int VOTES_PER_DAY = 3;
+
+  private static final String SAVE_FAILED = "Could not save your vote. Please try again.";
 
   private final VoteDataAccessInterface dataAccess;
   private final VoteOutputBoundary presenter;
@@ -43,7 +45,7 @@ public class VoteInteractor implements VoteInputBoundary {
         // Extension 2a: voting again takes the vote back.
         chosen.removeVote(username);
         finish(trip, day, dayIdeas, chosen, username, VoteOutputData.Outcome.REMOVED);
-      } else if (countVotesUsed(dayIdeas, username) >= VOTES_PER_DAY) {
+      } else if (IdeaRanking.countVotesUsed(dayIdeas, username) >= VOTES_PER_DAY) {
         // Extension 2b: nothing changes.
         presenter.prepareFailView("No votes left today. Take a vote back first.");
       } else {
@@ -51,6 +53,21 @@ public class VoteInteractor implements VoteInputBoundary {
         finish(trip, day, dayIdeas, chosen, username, VoteOutputData.Outcome.ADDED);
       }
     }
+  }
+
+  @Override
+  public void open(OpenActivitiesInputData inputData) {
+    final String username = inputData.getUsername();
+    final List<Trip> trips = dataAccess.getTripsForMember(username);
+    if (trips.isEmpty()) {
+      presenter.prepareFailView("You are not a member of any trip yet.");
+    } else {
+      final Trip trip = pickTrip(trips);
+      dataAccess.setCurrentTripId(trip.getId());
+      final LocalDate day = firstDayWithIdeas(trip);
+      present(trip, day, ideasForDay(trip.getId(), day), username, VoteOutputData.Outcome.NONE);
+    }
+    presenter.switchToActivitiesView();
   }
 
   @Override
@@ -67,6 +84,10 @@ public class VoteInteractor implements VoteInputBoundary {
     }
   }
 
+  /**
+   * Saves the changed idea and shows the result. If it cannot be saved, the vote is put back as it
+   * was, so what is in memory matches what is stored.
+   */
   private void finish(
       Trip trip,
       LocalDate day,
@@ -74,8 +95,16 @@ public class VoteInteractor implements VoteInputBoundary {
       ActivityIdea changed,
       String username,
       VoteOutputData.Outcome outcome) {
-    dataAccess.saveActivityIdea(changed);
-    present(trip, day, dayIdeas, username, outcome);
+    if (dataAccess.saveVote(changed)) {
+      present(trip, day, dayIdeas, username, outcome);
+    } else {
+      if (outcome == VoteOutputData.Outcome.ADDED) {
+        changed.removeVote(username);
+      } else {
+        changed.addVote(username);
+      }
+      presenter.prepareFailView(SAVE_FAILED);
+    }
   }
 
   /** Looks up the trip and reports a failure if it is missing or the user is not a member. */
@@ -92,14 +121,20 @@ public class VoteInteractor implements VoteInputBoundary {
     return result;
   }
 
-  private List<ActivityIdea> ideasForDay(String tripId, LocalDate day) {
-    final List<ActivityIdea> result = new ArrayList<>();
-    for (ActivityIdea idea : dataAccess.getActivityIdeas(tripId)) {
-      if (idea.getDay().equals(day)) {
-        result.add(idea);
+  /** The trip the user has open, or the first trip they belong to if none is open. */
+  private Trip pickTrip(List<Trip> trips) {
+    final String currentTripId = dataAccess.getCurrentTripId();
+    Trip result = trips.get(0);
+    for (Trip candidate : trips) {
+      if (candidate.getId().equals(currentTripId)) {
+        result = candidate;
       }
     }
     return result;
+  }
+
+  private List<ActivityIdea> ideasForDay(String tripId, LocalDate day) {
+    return IdeaRanking.ideasForDay(dataAccess.getActivityIdeas(tripId), day);
   }
 
   private LocalDate firstDayWithIdeas(Trip trip) {
@@ -127,16 +162,6 @@ public class VoteInteractor implements VoteInputBoundary {
     return result;
   }
 
-  private static int countVotesUsed(List<ActivityIdea> dayIdeas, String username) {
-    int used = 0;
-    for (ActivityIdea idea : dayIdeas) {
-      if (idea.hasVoted(username)) {
-        used++;
-      }
-    }
-    return used;
-  }
-
   /** Ranks the day (ties go to the idea suggested first, extension 4a) and presents it. */
   private void present(
       Trip trip,
@@ -144,27 +169,17 @@ public class VoteInteractor implements VoteInputBoundary {
       List<ActivityIdea> dayIdeas,
       String username,
       VoteOutputData.Outcome outcome) {
-    final List<ActivityIdea> ranked = new ArrayList<>(dayIdeas);
-    ranked.sort(ActivityIdea.BY_RANK);
-
-    final List<RankedIdea> rows = new ArrayList<>();
-    for (ActivityIdea idea : ranked) {
-      rows.add(
-          new RankedIdea(
-              idea.getId(),
-              idea.getTitle(),
-              idea.getEstimatedCost(),
-              idea.getVoteCount(),
-              idea.hasVoted(username)));
-    }
-    final int votesLeft = Math.max(0, VOTES_PER_DAY - countVotesUsed(dayIdeas, username));
+    final int votesLeft =
+        Math.max(0, VOTES_PER_DAY - IdeaRanking.countVotesUsed(dayIdeas, username));
     presenter.prepareSuccessView(
         new VoteOutputData(
+            trip.getId(),
+            username,
             trip.getName(),
             trip.getHomeCurrency(),
             day,
             trip.getDates(),
-            rows,
+            IdeaRanking.rank(dayIdeas, username),
             votesLeft,
             VOTES_PER_DAY,
             outcome));

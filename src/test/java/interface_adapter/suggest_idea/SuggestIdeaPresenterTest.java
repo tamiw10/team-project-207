@@ -7,6 +7,7 @@ import interface_adapter.vote.ActivitiesViewModel;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import use_case.idea_ranking.RankedIdea;
 import use_case.suggest_idea.SuggestIdeaOutputData;
 
 class SuggestIdeaPresenterTest {
@@ -26,8 +27,8 @@ class SuggestIdeaPresenterTest {
             new SuggestIdeaOutputData(
                 DAY,
                 List.of(
-                    new SuggestIdeaOutputData.IdeaRow("a", "teamLab", 160, 2, true),
-                    new SuggestIdeaOutputData.IdeaRow("b", "Ramen", 20, 0, false))));
+                    new RankedIdea("a", "teamLab", 160, 2, true),
+                    new RankedIdea("b", "Ramen", 20, 0, false))));
 
     assertEquals("Idea added", model.getState().getMessage());
     assertEquals("", model.getState().getError());

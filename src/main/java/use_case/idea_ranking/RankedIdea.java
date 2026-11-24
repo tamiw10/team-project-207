@@ -1,6 +1,6 @@
-package use_case.vote;
+package use_case.idea_ranking;
 
-/** One activity idea as the user sees it in the ranking. */
+/** One activity idea as the user sees it in a day's ranking. */
 public class RankedIdea {
 
   private final String id;

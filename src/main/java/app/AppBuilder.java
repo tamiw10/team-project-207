@@ -6,6 +6,16 @@ import data_access.JsonFileTripDataAccessObject;
 import entity.Trip;
 import entity.UserFactory;
 import interface_adapter.ViewManagerModel;
+import interface_adapter.add_expense.AddExpenseState;
+import interface_adapter.add_expense.AddExpenseViewModel;
+import interface_adapter.add_expense.LogExpenseController;
+import interface_adapter.add_expense.LogExpensePresenter;
+import interface_adapter.create_trip.CreateTripController;
+import interface_adapter.create_trip.CreateTripPresenter;
+import interface_adapter.create_trip.CreateTripViewModel;
+import interface_adapter.daily_budget.DailyBudgetController;
+import interface_adapter.daily_budget.DailyBudgetPresenter;
+import interface_adapter.daily_budget.DailyBudgetViewModel;
 import interface_adapter.logged_in.ChangePasswordController;
 import interface_adapter.logged_in.ChangePasswordPresenter;
 import interface_adapter.logged_in.LoggedInViewModel;
@@ -19,15 +29,26 @@ import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
 import interface_adapter.suggest_idea.SuggestIdeaController;
 import interface_adapter.suggest_idea.SuggestIdeaPresenter;
+import interface_adapter.trip.TripViewModel;
 import interface_adapter.vote.ActivitiesViewModel;
 import interface_adapter.vote.VoteController;
 import interface_adapter.vote.VotePresenter;
 import java.awt.*;
+import java.time.LocalDateTime;
 import java.util.List;
 import javax.swing.*;
 import use_case.change_password.ChangePasswordInputBoundary;
 import use_case.change_password.ChangePasswordInteractor;
 import use_case.change_password.ChangePasswordOutputBoundary;
+import use_case.create_trip.CreateTripInputBoundary;
+import use_case.create_trip.CreateTripInteractor;
+import use_case.create_trip.CreateTripOutputBoundary;
+import use_case.daily_budget.DailyBudgetInputBoundary;
+import use_case.daily_budget.DailyBudgetInteractor;
+import use_case.daily_budget.DailyBudgetOutputBoundary;
+import use_case.log_expense.LogExpenseInputBoundary;
+import use_case.log_expense.LogExpenseInteractor;
+import use_case.log_expense.LogExpenseOutputBoundary;
 import use_case.login.LoginInputBoundary;
 import use_case.login.LoginInteractor;
 import use_case.login.LoginOutputBoundary;
@@ -44,9 +65,13 @@ import use_case.vote.VoteInputBoundary;
 import use_case.vote.VoteInteractor;
 import use_case.vote.VoteOutputBoundary;
 import view.ActivitiesView;
+import view.AddExpenseView;
+import view.CreateTripView;
+import view.DailyBudgetView;
 import view.LoggedInView;
 import view.LoginView;
 import view.SignupView;
+import view.TripView;
 import view.ViewManager;
 
 public class AppBuilder {
@@ -74,9 +99,16 @@ public class AppBuilder {
   private LoggedInViewModel loggedInViewModel;
   private LoggedInView loggedInView;
   private LoginView loginView;
+  private AddExpenseViewModel addExpenseViewModel;
+  private AddExpenseView addExpenseView;
+  private CreateTripViewModel createTripViewModel;
+  private CreateTripView createTripView;
+  private TripViewModel tripViewModel;
+  private TripView tripView;
+  private DailyBudgetViewModel dailyBudgetViewModel;
+  private DailyBudgetView dailyBudgetView;
   private ActivitiesViewModel activitiesViewModel;
   private ActivitiesView activitiesView;
-  private VoteController voteController;
 
   public AppBuilder() {
     cardPanel.setLayout(cardLayout);
@@ -103,6 +135,43 @@ public class AppBuilder {
     return this;
   }
 
+  /**
+   * Adds the form for creating a trip.
+   *
+   * @return this builder
+   */
+  public AppBuilder addCreateTripView() {
+    createTripViewModel = new CreateTripViewModel();
+    createTripView = new CreateTripView(createTripViewModel);
+    cardPanel.add(createTripView, CreateTripViewModel.VIEW_NAME);
+    return this;
+  }
+
+  /**
+   * Adds the screen that shows an open trip.
+   *
+   * @return this builder
+   */
+  public AppBuilder addTripView() {
+    tripViewModel = new TripViewModel();
+    tripView = new TripView(tripViewModel);
+    cardPanel.add(tripView, TripViewModel.VIEW_NAME);
+    return this;
+  }
+
+  /** Adds the screen for viewing and updating a trip's budget. */
+  public AppBuilder addDailyBudgetView() {
+    dailyBudgetViewModel = new DailyBudgetViewModel();
+    dailyBudgetView = new DailyBudgetView(dailyBudgetViewModel);
+    cardPanel.add(dailyBudgetView, DailyBudgetViewModel.VIEW_NAME);
+    return this;
+  }
+
+  /**
+   * Adds the screen for voting on activity ideas.
+   *
+   * @return this builder
+   */
   public AppBuilder addActivitiesView() {
     activitiesViewModel = new ActivitiesViewModel();
     activitiesView = new ActivitiesView(activitiesViewModel);
@@ -165,24 +234,45 @@ public class AppBuilder {
   }
 
   /**
+   * Adds the Create Trip Use Case to the application.
+   *
+   * @return this builder
+   */
+  public AppBuilder addCreateTripUseCase() {
+    final CreateTripOutputBoundary createTripOutputBoundary =
+        new CreateTripPresenter(viewManagerModel, createTripViewModel, tripViewModel);
+
+    final CreateTripInputBoundary createTripInteractor =
+        new CreateTripInteractor(
+            userDataAccessObject,
+            tripDataAccessObject,
+            exchangeRateGateway,
+            createTripOutputBoundary);
+
+    final CreateTripController createTripController =
+        new CreateTripController(createTripInteractor);
+    createTripView.setCreateTripController(createTripController);
+    tripView.setCreateTripController(createTripController);
+    loggedInView.setCreateTripController(createTripController);
+    return this;
+  }
+
+  /**
    * Adds the Vote on Activity Ideas Use Case to the application. Needs the logged-in and
    * activities views to have been added first.
    *
    * @return this builder
    */
   public AppBuilder addVoteUseCase() {
-    final VoteOutputBoundary voteOutputBoundary = new VotePresenter(activitiesViewModel);
+    final VoteOutputBoundary voteOutputBoundary =
+        new VotePresenter(viewManagerModel, activitiesViewModel);
     final VoteInputBoundary voteInteractor =
         new VoteInteractor(tripDataAccessObject, voteOutputBoundary);
-    voteController = new VoteController(voteInteractor);
+    final VoteController voteController = new VoteController(voteInteractor);
     activitiesView.setVoteController(voteController);
-
-    activitiesView.setBackAction(
-        () -> {
-          viewManagerModel.setState(LoggedInViewModel.VIEW_NAME);
-          viewManagerModel.notifyViewChanged();
-        });
-    loggedInView.setOpenActivitiesAction(this::openActivities);
+    activitiesView.setBackAction(() -> showView(LoggedInViewModel.VIEW_NAME));
+    loggedInView.setOpenActivitiesAction(
+        () -> voteController.open(loggedInViewModel.getState().getUsername()));
     return this;
   }
 
@@ -196,38 +286,10 @@ public class AppBuilder {
     final SuggestIdeaOutputBoundary suggestIdeaOutputBoundary =
         new SuggestIdeaPresenter(activitiesViewModel);
     final SuggestIdeaInputBoundary suggestIdeaInteractor =
-        new SuggestIdeaInteractor(tripDataAccessObject, suggestIdeaOutputBoundary);
+        new SuggestIdeaInteractor(
+            tripDataAccessObject, suggestIdeaOutputBoundary, LocalDateTime::now);
     activitiesView.setSuggestIdeaController(new SuggestIdeaController(suggestIdeaInteractor));
     return this;
-  }
-
-  /**
-   * Opens the activities screen for the trip the user has open. Until the trip list screen exists
-   * and sets the current trip, this falls back to the first trip the user belongs to.
-   */
-  private void openActivities() {
-    final String username = loggedInViewModel.getState().getUsername();
-    final List<Trip> trips = tripDataAccessObject.getTripsForMember(username);
-    if (trips.isEmpty()) {
-      JOptionPane.showMessageDialog(cardPanel, "You are not a member of any trip yet.");
-    } else {
-      final String currentTripId = tripDataAccessObject.getCurrentTripId();
-      Trip trip = trips.get(0);
-      for (Trip candidate : trips) {
-        if (candidate.getId().equals(currentTripId)) {
-          trip = candidate;
-        }
-      }
-      tripDataAccessObject.setCurrentTripId(trip.getId());
-      final interface_adapter.vote.ActivitiesState state = activitiesViewModel.getState();
-      state.setUsername(username);
-      state.setTripId(trip.getId());
-      state.setMessage("");
-      state.setError("");
-      voteController.showDay(trip.getId(), null, username);
-      viewManagerModel.setState(ActivitiesViewModel.VIEW_NAME);
-      viewManagerModel.notifyViewChanged();
-    }
   }
 
   public JFrame build() {
@@ -240,5 +302,101 @@ public class AppBuilder {
     viewManagerModel.notifyViewChanged();
 
     return application;
+  }
+
+  /** Wires the budget screen and gives signed-in users access to it. */
+  public AppBuilder addDailyBudgetUseCase() {
+    final DailyBudgetOutputBoundary presenter = new DailyBudgetPresenter(dailyBudgetViewModel);
+    final DailyBudgetInputBoundary interactor = new DailyBudgetInteractor(
+        tripDataAccessObject, userDataAccessObject::getCurrentUsername, presenter);
+    final DailyBudgetController controller = new DailyBudgetController(interactor);
+    dailyBudgetView.setDailyBudgetController(controller);
+    dailyBudgetView.setBackAction(() -> showView(LoggedInViewModel.VIEW_NAME));
+    loggedInView.setOpenDailyBudgetAction(() -> {
+      controller.open();
+      showView(DailyBudgetViewModel.VIEW_NAME);
+    });
+    return this;
+  }
+
+  private void showView(String viewName) {
+    viewManagerModel.setState(viewName);
+    viewManagerModel.notifyViewChanged();
+  }
+
+  /**
+   * Creates and registers {@link AddExpenseView} and {@link AddExpenseViewModel} in the card panel.
+   *
+   * @return this builder
+   */
+  public AppBuilder addAddExpenseView() {
+    addExpenseViewModel = new AddExpenseViewModel();
+    addExpenseView = new AddExpenseView(addExpenseViewModel);
+    addExpenseView.setViewManagerModel(viewManagerModel);
+    cardPanel.add(addExpenseView, AddExpenseViewModel.VIEW_NAME);
+    return this;
+  }
+
+  /**
+   * Wires the Log Expense use case ({@link LogExpenseInteractor}, {@link LogExpensePresenter}, and
+   * {@link LogExpenseController}) and connects the Log Expense button on {@link LoggedInView}.
+   *
+   * @return this builder
+   */
+  public AppBuilder addLogExpenseUseCase() {
+    final LogExpenseOutputBoundary logExpenseOutputBoundary =
+        new LogExpensePresenter(addExpenseViewModel);
+
+    final LogExpenseInputBoundary logExpenseInteractor =
+        new LogExpenseInteractor(
+            tripDataAccessObject, exchangeRateGateway, logExpenseOutputBoundary);
+
+    final LogExpenseController logExpenseController =
+        new LogExpenseController(logExpenseInteractor);
+    addExpenseView.setLogExpenseController(logExpenseController);
+
+    if (loggedInView != null) {
+      loggedInView.setOnOpenLogExpense(this::openLogExpenseForCurrentUser);
+    }
+    return this;
+  }
+
+  private void openLogExpenseForCurrentUser() {
+    final String username = loggedInViewModel.getState().getUsername();
+    Trip trip = null;
+    if (tripDataAccessObject.getCurrentTripId() != null) {
+      trip = tripDataAccessObject.getTrip(tripDataAccessObject.getCurrentTripId());
+    }
+    if (trip == null && username != null && !username.isBlank()) {
+      final List<Trip> memberTrips = tripDataAccessObject.getTripsForMember(username);
+      if (!memberTrips.isEmpty()) {
+        trip = memberTrips.get(0);
+      }
+    }
+    if (trip == null) {
+      trip = tripDataAccessObject.getTrip(SampleDataSeeder.SAMPLE_TRIP_ID);
+    }
+
+    final AddExpenseState state = addExpenseViewModel.getState();
+    state.setStatusMessage("");
+    state.setError(false);
+    state.setClearForm(false);
+    if (trip != null) {
+      tripDataAccessObject.setCurrentTripId(trip.getId());
+      state.setTripId(trip.getId());
+      state.setTripName(trip.getName());
+      state.setHomeCurrency(trip.getHomeCurrency());
+      state.setExpenses(
+          LogExpensePresenter.formatExpenses(
+              tripDataAccessObject.getExpenses(trip.getId()), trip.getHomeCurrency()));
+    } else {
+      state.setTripId("");
+      state.setTripName("");
+      state.setStatusMessage("No trip found. Run SampleDataSeeder first.");
+      state.setError(true);
+    }
+    addExpenseViewModel.notifyStateChanged();
+    viewManagerModel.setState(AddExpenseViewModel.VIEW_NAME);
+    viewManagerModel.notifyViewChanged();
   }
 }

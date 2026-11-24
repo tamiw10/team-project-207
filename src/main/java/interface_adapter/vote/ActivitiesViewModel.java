@@ -20,6 +20,11 @@ public class ActivitiesViewModel {
     this.state = state;
   }
 
+  /**
+   * Registers a listener that is told when the state changes.
+   *
+   * @param listener the listener to add
+   */
   public void addListener(ActivitiesViewModelListener listener) {
     listeners.add(listener);
   }

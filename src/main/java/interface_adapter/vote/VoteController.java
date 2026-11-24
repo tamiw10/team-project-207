@@ -2,6 +2,7 @@ package interface_adapter.vote;
 
 import java.time.LocalDate;
 import use_case.vote.LoadDayInputData;
+import use_case.vote.OpenActivitiesInputData;
 import use_case.vote.VoteInputBoundary;
 import use_case.vote.VoteInputData;
 
@@ -10,6 +11,11 @@ public class VoteController {
 
   private final VoteInputBoundary voteInteractor;
 
+  /**
+   * Creates the controller.
+   *
+   * @param voteInteractor the use case this controller starts
+   */
   public VoteController(VoteInputBoundary voteInteractor) {
     this.voteInteractor = voteInteractor;
   }
@@ -24,6 +30,15 @@ public class VoteController {
    */
   public void vote(String tripId, LocalDate day, String ideaId, String username) {
     voteInteractor.execute(new VoteInputData(tripId, day, ideaId, username));
+  }
+
+  /**
+   * Opens the activities screen for the trip the user has open.
+   *
+   * @param username the member opening the screen
+   */
+  public void open(String username) {
+    voteInteractor.open(new OpenActivitiesInputData(username));
   }
 
   /**

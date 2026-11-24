@@ -24,10 +24,32 @@ public interface VoteDataAccessInterface {
   List<ActivityIdea> getActivityIdeas(String tripId);
 
   /**
-   * Saves an activity idea, replacing the stored idea with the same id (for example after its
-   * votes change).
+   * Returns the trips a member belongs to.
+   *
+   * @param username the member
+   * @return their trips, in the order they were created; empty if they belong to none
+   */
+  List<Trip> getTripsForMember(String username);
+
+  /**
+   * Returns the id of the trip the user has open.
+   *
+   * @return the open trip's id, or null if no trip is open
+   */
+  String getCurrentTripId();
+
+  /**
+   * Remembers which trip the user has open.
+   *
+   * @param tripId the id of the open trip
+   */
+  void setCurrentTripId(String tripId);
+
+  /**
+   * Saves an activity idea after its votes changed, replacing the stored idea with the same id.
    *
    * @param idea the idea to save
+   * @return true if it was saved, false if it could not be saved
    */
-  void saveActivityIdea(ActivityIdea idea);
+  boolean saveVote(ActivityIdea idea);
 }

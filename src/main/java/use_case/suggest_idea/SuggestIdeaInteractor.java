@@ -4,26 +4,34 @@ import entity.ActivityIdea;
 import entity.Trip;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
+import use_case.idea_ranking.IdeaRanking;
+import use_case.idea_ranking.RankedIdea;
 
 /** The Suggest Idea Interactor: a member adds an activity idea for a day of the trip. */
 public class SuggestIdeaInteractor implements SuggestIdeaInputBoundary {
 
   private final SuggestIdeaDataAccessInterface dataAccess;
   private final SuggestIdeaOutputBoundary presenter;
+  private final Supplier<LocalDateTime> clock;
 
   /**
    * Creates the interactor.
    *
    * @param dataAccess where trips and activity ideas are stored
    * @param presenter where results are sent
+   * @param clock tells the current time, used to record when an idea was suggested (ties between
+   *     equally voted ideas go to the one suggested first)
    */
   public SuggestIdeaInteractor(
-      SuggestIdeaDataAccessInterface dataAccess, SuggestIdeaOutputBoundary presenter) {
+      SuggestIdeaDataAccessInterface dataAccess,
+      SuggestIdeaOutputBoundary presenter,
+      Supplier<LocalDateTime> clock) {
     this.dataAccess = dataAccess;
     this.presenter = presenter;
+    this.clock = clock;
   }
 
   @Override
@@ -57,8 +65,10 @@ public class SuggestIdeaInteractor implements SuggestIdeaInputBoundary {
               title,
               cost,
               username,
-              LocalDateTime.now()));
-      final List<SuggestIdeaOutputData.IdeaRow> rows = rankedIdeas(trip, day, username);
+              clock.get()));
+      final List<RankedIdea> rows =
+          IdeaRanking.rank(
+              IdeaRanking.ideasForDay(dataAccess.getActivityIdeas(trip.getId()), day), username);
       presenter.prepareSuccessView(new SuggestIdeaOutputData(day, rows));
     }
   }
@@ -77,29 +87,5 @@ public class SuggestIdeaInteractor implements SuggestIdeaInputBoundary {
       }
     }
     return result;
-  }
-
-  /** The day's ideas, most votes first, ties to the idea suggested first. */
-  private List<SuggestIdeaOutputData.IdeaRow> rankedIdeas(
-      Trip trip, LocalDate day, String username) {
-    final List<ActivityIdea> dayIdeas = new ArrayList<>();
-    for (ActivityIdea idea : dataAccess.getActivityIdeas(trip.getId())) {
-      if (idea.getDay().equals(day)) {
-        dayIdeas.add(idea);
-      }
-    }
-    dayIdeas.sort(ActivityIdea.BY_RANK);
-
-    final List<SuggestIdeaOutputData.IdeaRow> rows = new ArrayList<>();
-    for (ActivityIdea idea : dayIdeas) {
-      rows.add(
-          new SuggestIdeaOutputData.IdeaRow(
-              idea.getId(),
-              idea.getTitle(),
-              idea.getEstimatedCost(),
-              idea.getVoteCount(),
-              idea.hasVoted(username)));
-    }
-    return rows;
   }
 }

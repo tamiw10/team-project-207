@@ -1,37 +1,30 @@
 package interface_adapter.suggest_idea;
 
+import interface_adapter.vote.ActivitiesRows;
 import interface_adapter.vote.ActivitiesState;
 import interface_adapter.vote.ActivitiesViewModel;
-import java.util.ArrayList;
-import java.util.List;
 import use_case.suggest_idea.SuggestIdeaOutputBoundary;
 import use_case.suggest_idea.SuggestIdeaOutputData;
-import use_case.vote.RankedIdea;
 
 /** The Presenter for the Suggest Idea Use Case. It updates the activities screen's state. */
 public class SuggestIdeaPresenter implements SuggestIdeaOutputBoundary {
 
   private final ActivitiesViewModel activitiesViewModel;
 
+  /**
+   * Creates the presenter.
+   *
+   * @param activitiesViewModel the view model of the activities screen
+   */
   public SuggestIdeaPresenter(ActivitiesViewModel activitiesViewModel) {
     this.activitiesViewModel = activitiesViewModel;
   }
 
   @Override
   public void prepareSuccessView(SuggestIdeaOutputData outputData) {
-    final List<RankedIdea> rows = new ArrayList<>();
-    for (SuggestIdeaOutputData.IdeaRow idea : outputData.getIdeas()) {
-      rows.add(
-          new RankedIdea(
-              idea.getId(),
-              idea.getTitle(),
-              idea.getEstimatedCost(),
-              idea.getVoteCount(),
-              idea.isVotedByUser()));
-    }
     final ActivitiesState state = activitiesViewModel.getState();
     state.setDay(outputData.getDay());
-    state.setRankedIdeas(rows);
+    state.setRankedIdeas(ActivitiesRows.fromRanked(outputData.getIdeas()));
     state.setMessage("Idea added");
     state.setError("");
     activitiesViewModel.notifyStateChanged();

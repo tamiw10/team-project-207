@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import use_case.idea_ranking.RankedIdea;
 
 /** Output Data for the Vote Use Case: the day's ranked ideas and the user's remaining votes. */
 public class VoteOutputData {
@@ -18,6 +19,8 @@ public class VoteOutputData {
     REMOVED
   }
 
+  private final String tripId;
+  private final String username;
   private final String tripName;
   private final String homeCurrency;
   private final LocalDate day;
@@ -30,6 +33,8 @@ public class VoteOutputData {
   /**
    * Creates the output data.
    *
+   * @param tripId the trip's id
+   * @param username the member looking at the ideas
    * @param tripName the trip's name
    * @param homeCurrency the trip's home currency, used to show idea costs
    * @param day the day being shown
@@ -40,6 +45,8 @@ public class VoteOutputData {
    * @param outcome what the request did
    */
   public VoteOutputData(
+      String tripId,
+      String username,
       String tripName,
       String homeCurrency,
       LocalDate day,
@@ -48,6 +55,8 @@ public class VoteOutputData {
       int votesLeft,
       int votesPerDay,
       Outcome outcome) {
+    this.tripId = tripId;
+    this.username = username;
     this.tripName = tripName;
     this.homeCurrency = homeCurrency;
     this.day = day;
@@ -56,6 +65,14 @@ public class VoteOutputData {
     this.votesLeft = votesLeft;
     this.votesPerDay = votesPerDay;
     this.outcome = outcome;
+  }
+
+  public String getTripId() {
+    return tripId;
+  }
+
+  public String getUsername() {
+    return username;
   }
 
   public String getTripName() {

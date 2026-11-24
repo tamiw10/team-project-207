@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import use_case.idea_ranking.RankedIdea;
 
 class VoteInteractorTest {
 
@@ -26,6 +27,7 @@ class VoteInteractorTest {
   private VoteOutputData success;
   private String failure;
   private int successCount;
+  private int switchCount;
   private VoteInteractor interactor;
 
   private final VoteOutputBoundary presenter =
@@ -39,6 +41,11 @@ class VoteInteractorTest {
         @Override
         public void prepareFailView(String errorMessage) {
           failure = errorMessage;
+        }
+
+        @Override
+        public void switchToActivitiesView() {
+          switchCount++;
         }
       };
 
@@ -224,5 +231,70 @@ class VoteInteractorTest {
     interactor.loadDay(new LoadDayInputData(TRIP, DAY, "stranger"));
     assertEquals("Only members of this trip can vote.", failure);
     assertEquals(0, successCount);
+  }
+
+  @Test
+  void openShowsTheFirstTripOnItsFirstDayWithIdeas() {
+    idea("a", START.plusDays(1), 0, "emily");
+    interactor.open(new OpenActivitiesInputData("amelia"));
+    assertNull(failure);
+    assertEquals(TRIP, success.getTripId());
+    assertEquals("amelia", success.getUsername());
+    assertEquals(START.plusDays(1), success.getDay());
+    assertEquals(1, success.getRankedIdeas().size());
+    assertEquals(TRIP, dao.getCurrentTripId());
+    assertEquals(1, switchCount);
+  }
+
+  @Test
+  void openPrefersTheTripThatIsCurrentlyOpen() {
+    final Trip other =
+        new Trip("t2", "Paris", "Paris, France", START, START.plusDays(1), "EUR", 100, "amelia");
+    dao.saveTrip(other);
+    dao.setCurrentTripId("t2");
+    interactor.open(new OpenActivitiesInputData("amelia"));
+    assertEquals("t2", success.getTripId());
+    assertEquals(START, success.getDay());
+  }
+
+  @Test
+  void openWithoutAnyTripShowsAnErrorOnTheActivitiesScreen() {
+    interactor.open(new OpenActivitiesInputData("stranger"));
+    assertEquals("You are not a member of any trip yet.", failure);
+    assertEquals(0, successCount);
+    assertEquals(1, switchCount);
+  }
+
+  @Test
+  void failedSaveOfANewVoteIsRolledBack() {
+    final FailingDao failing = new FailingDao();
+    failing.saveTrip(dao.getTrip(TRIP));
+    failing.saveActivityIdea(new ActivityIdea("a", TRIP, DAY, "Idea a", 10, "emily", NOON));
+    final VoteInteractor failingInteractor = new VoteInteractor(failing, presenter);
+    failingInteractor.execute(new VoteInputData(TRIP, DAY, "a", "amelia"));
+    assertEquals("Could not save your vote. Please try again.", failure);
+    assertEquals(0, successCount);
+    assertFalse(failing.getActivityIdea("a").hasVoted("amelia"));
+  }
+
+  @Test
+  void failedSaveOfATakenBackVoteIsRolledBack() {
+    final FailingDao failing = new FailingDao();
+    failing.saveTrip(dao.getTrip(TRIP));
+    final ActivityIdea voted = new ActivityIdea("a", TRIP, DAY, "Idea a", 10, "emily", NOON);
+    voted.addVote("amelia");
+    failing.saveActivityIdea(voted);
+    final VoteInteractor failingInteractor = new VoteInteractor(failing, presenter);
+    failingInteractor.execute(new VoteInputData(TRIP, DAY, "a", "amelia"));
+    assertEquals("Could not save your vote. Please try again.", failure);
+    assertTrue(failing.getActivityIdea("a").hasVoted("amelia"));
+  }
+
+  /** A data access object whose votes can never be saved. */
+  private static final class FailingDao extends InMemoryTripDataAccessObject {
+    @Override
+    public boolean saveVote(ActivityIdea idea) {
+      return false;
+    }
   }
 }

@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import use_case.idea_ranking.RankedIdea;
 
 class SuggestIdeaInteractorTest {
 
@@ -47,7 +48,7 @@ class SuggestIdeaInteractorTest {
         new Trip(TRIP, "Tokyo", "Tokyo, Japan", START, START.plusDays(2), "CAD", 100, "amelia");
     trip.addMember("emily");
     dao.saveTrip(trip);
-    interactor = new SuggestIdeaInteractor(dao, presenter);
+    interactor = new SuggestIdeaInteractor(dao, presenter, () -> NOON.plusDays(1));
   }
 
   private void suggest(LocalDate day, String title, String cost, String user) {
@@ -69,7 +70,7 @@ class SuggestIdeaInteractorTest {
     assertNull(failure);
     assertEquals(DAY, success.getDay());
     assertEquals(1, success.getIdeas().size());
-    final SuggestIdeaOutputData.IdeaRow shown = success.getIdeas().get(0);
+    final RankedIdea shown = success.getIdeas().get(0);
     assertEquals("Ramen night", shown.getTitle());
     assertEquals(25.5, shown.getEstimatedCost());
     assertEquals(0, shown.getVoteCount());
@@ -79,6 +80,7 @@ class SuggestIdeaInteractorTest {
     assertEquals("amelia", saved.getProposedBy());
     assertEquals(DAY, saved.getDay());
     assertEquals(0, saved.getVoteCount());
+    assertEquals(NOON.plusDays(1), saved.getCreatedAt());
   }
 
   @Test

@@ -9,6 +9,11 @@ public class SuggestIdeaController {
 
   private final SuggestIdeaInputBoundary suggestIdeaInteractor;
 
+  /**
+   * Creates the controller.
+   *
+   * @param suggestIdeaInteractor the use case this controller starts
+   */
   public SuggestIdeaController(SuggestIdeaInputBoundary suggestIdeaInteractor) {
     this.suggestIdeaInteractor = suggestIdeaInteractor;
   }

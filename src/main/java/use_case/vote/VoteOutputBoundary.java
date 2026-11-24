@@ -16,4 +16,7 @@ public interface VoteOutputBoundary {
    * @param errorMessage the explanation of the failure
    */
   void prepareFailView(String errorMessage);
+
+  /** Switches to the activities screen. */
+  void switchToActivitiesView();
 }

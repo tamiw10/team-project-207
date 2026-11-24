@@ -462,7 +462,7 @@ sequenceDiagram
 
 #### Use Case 5: Suggest and vote on activity ideas
 
-Voting:
+Voting (the ranking itself is done by the shared `IdeaRanking` helper in `use_case.idea_ranking`, which the suggest use case uses too, so the rule lives in one place):
 
 ```mermaid
 sequenceDiagram
@@ -480,12 +480,14 @@ sequenceDiagram
     alt no votes left
         I->>P: 5 prepareFailView with the message
     else vote added or removed
-        I->>D: saveActivityIdea with the changed votes
+        I->>D: saveVote with the changed idea (if saving fails the vote is put back and prepareFailView is called)
         I->>P: 5 prepareSuccessView with the ranked ideas and votes left
     end
     P->>M: 6 update state
     M-->>V: 7 notify the View, Observer
 ```
+
+Opening the screen: the Logged In view calls `VoteController.open`, the interactor picks the trip (the open one, else the first the user belongs to), loads its first day with ideas and the presenter switches to the activities view.
 
 Suggesting an idea (same screen, its own interactor, controller and presenter):
 

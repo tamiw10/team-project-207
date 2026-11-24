@@ -18,8 +18,9 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import use_case.vote.RankedIdea;
+import javax.swing.ScrollPaneConstants;
 
 /**
  * The View for voting on a day's activity ideas: pick a day, see its ideas ranked by votes, and
@@ -31,7 +32,9 @@ public class ActivitiesView extends JPanel implements ActivitiesViewModelListene
   private static final Color ERROR_RED = new Color(200, 30, 30);
   private static final int GAP = 8;
   private static final int ROW_HEIGHT = 56;
-  private static final int LIST_WIDTH = 520;
+  private static final int LIST_WIDTH = 560;
+  private static final int VISIBLE_ROWS = 4;
+  private static final int SCROLLBAR_WIDTH = 20;
 
   private final ActivitiesViewModel activitiesViewModel;
   private VoteController voteController;
@@ -52,6 +55,11 @@ public class ActivitiesView extends JPanel implements ActivitiesViewModelListene
   /** True while the view fills the day picker, so that doing so does not count as a user pick. */
   private boolean updating;
 
+  /**
+   * Creates the activities screen and listens to its view model.
+   *
+   * @param activitiesViewModel the view model that holds what the screen shows
+   */
   public ActivitiesView(ActivitiesViewModel activitiesViewModel) {
     this.activitiesViewModel = activitiesViewModel;
     this.activitiesViewModel.addListener(this);
@@ -79,6 +87,18 @@ public class ActivitiesView extends JPanel implements ActivitiesViewModelListene
     ideaList.setLayout(new BoxLayout(ideaList, BoxLayout.Y_AXIS));
     ideaList.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+    // The list scrolls, and the window is sized for a few rows even before any idea is loaded,
+    // so the Suggest row and the Back button below it are always visible.
+    final JScrollPane ideaScroll = new JScrollPane(ideaList);
+    ideaScroll.setAlignmentX(Component.LEFT_ALIGNMENT);
+    ideaScroll.setBorder(BorderFactory.createEmptyBorder());
+    ideaScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+    ideaScroll.getVerticalScrollBar().setUnitIncrement(ROW_HEIGHT);
+    final Dimension scrollSize =
+        new Dimension(LIST_WIDTH + SCROLLBAR_WIDTH, VISIBLE_ROWS * (ROW_HEIGHT + GAP / 2));
+    ideaScroll.setPreferredSize(scrollSize);
+    ideaScroll.setMaximumSize(scrollSize);
+
     back.setAlignmentX(Component.LEFT_ALIGNMENT);
     back.addActionListener(evt -> backAction.run());
 
@@ -98,7 +118,7 @@ public class ActivitiesView extends JPanel implements ActivitiesViewModelListene
     add(status);
     add(Box.createVerticalStrut(GAP));
     add(rankedLabel);
-    add(ideaList);
+    add(ideaScroll);
     add(Box.createVerticalStrut(GAP));
     add(buildSuggestPanel());
     add(Box.createVerticalStrut(GAP));
@@ -177,7 +197,7 @@ public class ActivitiesView extends JPanel implements ActivitiesViewModelListene
 
     ideaList.removeAll();
     int rank = 1;
-    for (RankedIdea idea : state.getRankedIdeas()) {
+    for (ActivitiesState.IdeaRow idea : state.getRankedIdeas()) {
       ideaList.add(buildRow(rank, idea, state));
       ideaList.add(Box.createVerticalStrut(GAP / 2));
       rank++;
@@ -186,7 +206,7 @@ public class ActivitiesView extends JPanel implements ActivitiesViewModelListene
     ideaList.repaint();
   }
 
-  private JPanel buildRow(int rank, RankedIdea idea, ActivitiesState state) {
+  private JPanel buildRow(int rank, ActivitiesState.IdeaRow idea, ActivitiesState state) {
     final JPanel row = new JPanel(new BorderLayout(GAP, 0));
     row.setBorder(
         BorderFactory.createCompoundBorder(
