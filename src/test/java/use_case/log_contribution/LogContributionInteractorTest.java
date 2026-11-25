@@ -12,9 +12,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class LogContributionInteractorTest {
-
-    /**
-    private FakeDataAccessObject dataAccessObject;
+    private FakeUserDataAccessObject userDataAccessObject;
+    private FakeTripDataAccessObject tripDataAccessObject;
     private FakePresenter presenter;
     private LogContributionInteractor interactor;
 
@@ -36,30 +35,42 @@ public class LogContributionInteractorTest {
                 "alice"
         );
 
-        dataAccessObject = new FakeDataAccessObject(trip);
+        tripDataAccessObject = new FakeTripDataAccessObject(trip);
+        userDataAccessObject = new FakeUserDataAccessObject(trip);
         presenter = new FakePresenter();
 
         interactor = new LogContributionInteractor(
-                dataAccessObject,
+                userDataAccessObject,
+                tripDataAccessObject,
                 presenter
         );
     }
 
-    // Fake DAO
-    private static class FakeDataAccessObject
+    // Fake DAOs
+    private static class FakeUserDataAccessObject
             implements LogContributionUserDataAccessInterface {
+
+        private final Trip trip;
+
+        FakeUserDataAccessObject(Trip trip) {
+            this.trip = trip;
+        }
+
+
+        @Override
+        public String getCurrentUsername() {
+            return "alice";
+        }
+    }
+    private static class FakeTripDataAccessObject
+            implements LogContributionTripDataAccessInterface {
 
         private final Trip trip;
         private final List<Contribution> contributions =
                 new ArrayList<>();
 
-        FakeDataAccessObject(Trip trip) {
+        FakeTripDataAccessObject(Trip trip) {
             this.trip = trip;
-        }
-
-        @Override
-        public String getCurrentUsername() {
-            return "alice";
         }
 
         @Override
@@ -68,6 +79,11 @@ public class LogContributionInteractorTest {
                 return trip;
             }
             return null;
+        }
+
+        @Override
+        public String getCurrentTripId() {
+            return "";
         }
 
         @Override
@@ -110,29 +126,33 @@ public class LogContributionInteractorTest {
         LogContributionInputData inputData =
                 new LogContributionInputData(
                         "trip1",
-                        400.0,
-                        LocalDate.of(2026, 11, 16),
-                        2000.0
+                        "400.0",
+                        "2026-11-16",
+                        "2000.0"
                 );
 
         interactor.execute(inputData);
 
         // Check that the contribution was saved
-        assertEquals(1, dataAccessObject.contributions.size());
+        assertEquals(1, tripDataAccessObject.contributions.size());
 
         // Check that the contribution has the correct amount
         assertEquals(
                 400.0,
-                dataAccessObject.contributions.get(0).getAmount()
+                tripDataAccessObject.contributions.get(0).getAmount()
         );
 
         // Check that the savings goal was recorded
         assertTrue(trip.hasSavingsGoal("alice"));
         assertEquals(2000.0, trip.getSavingsGoal("alice"));
 
+        // Check some calculated output values
+        assertEquals(400.0, presenter.outputData.getTotalSaved());
+        assertEquals(2000.0, presenter.outputData.getSavingsGoal());
+        assertFalse(presenter.outputData.isUserGoalReached());
+
         // Check that the Interactor produced a success response
         assertNotNull(presenter.outputData);
         assertNull(presenter.errorMessage);
     }
-    */
 }

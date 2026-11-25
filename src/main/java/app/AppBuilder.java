@@ -231,7 +231,7 @@ public class AppBuilder {
       // Weeks Remaining
       final long daysRemainingLong = ChronoUnit.DAYS.between(today, trip.getStartDate());
       final int daysRemaining = Math.toIntExact(daysRemainingLong);
-      final int weeksRemaining = max(1, Math.ceilDiv(daysRemaining, 7));
+      final int weeksRemaining = max(1, (daysRemaining + 6) / 7);
       state.setWeeksRemaining(Double.toString(weeksRemaining));
 
       // User goal
@@ -262,7 +262,7 @@ public class AppBuilder {
           final LocalDate firstContributionDate = userContributions.get(0).getDate();
           final long daysElapsedLong = ChronoUnit.DAYS.between(firstContributionDate, today);
           final int daysElapsed = Math.toIntExact(daysElapsedLong);
-          final int weeksElapsed = max(1, Math.ceilDiv(daysElapsed, 7));
+          final int weeksElapsed = max(1, (daysElapsed + 6) / 7);
           final BigDecimal weeklyPaceBig = BigDecimal.valueOf(totalSaved / weeksElapsed)
                   .setScale(2, RoundingMode.HALF_UP);
           final double weeklyPace = weeklyPaceBig.doubleValue();

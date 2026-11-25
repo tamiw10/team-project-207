@@ -14,8 +14,9 @@ import java.awt.*;
 public class LogContributionView extends JPanel implements LogContributionViewModelListener {
 
     // Setup
-    private static final Color SUCCESS_COLOR = new Color(27, 127, 55);
-    private static final Color ERROR_COLOR = new Color(198, 40, 40);
+    private static final Color SUCCESS_COLOUR = new Color(27, 127, 55);
+    private static final Color ERROR_COLOUR = new Color(198, 40, 40);
+    private static final Color BLUE = new Color(0, 121, 255);
     private static final int PADDING = 16;
     private static final int GRID_GAP = 10;
 
@@ -24,8 +25,10 @@ public class LogContributionView extends JPanel implements LogContributionViewMo
     private LogContributionController logContributionController;
     private ViewManagerModel viewManagerModel;
 
-    private final JLabel headerLabel;
+    private final JLabel headerLabel = new JLabel("Savings");
     private final JLabel statusLabel = new JLabel(" ");
+    final JLabel sectionTitle;
+    private final JPanel contributionLoggedPanel = new JPanel();
 
 
     // text fields
@@ -58,13 +61,8 @@ public class LogContributionView extends JPanel implements LogContributionViewMo
         this.logContributionViewModel = logContributionViewModel;
         this.logContributionViewModel.addListener(this);
 
-        LogContributionState state = logContributionViewModel.getState();
-        headerLabel = new JLabel("Log Savings Contribution (in " + state.getHomeCurrency() + ")");
-
-        // Add text to progress bars
-        personalProgressBar.setStringPainted(true);
-        groupProgressBar.setStringPainted(true);
-
+        personalProgressBar.setForeground(SUCCESS_COLOUR);
+        groupProgressBar.setForeground(BLUE);
         // layout
         setLayout(new BorderLayout(0, 12));
         setBorder(BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING));
@@ -78,7 +76,7 @@ public class LogContributionView extends JPanel implements LogContributionViewMo
         final JPanel content = new JPanel();
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
-        final JLabel sectionTitle = new JLabel("Log a savings contribution");
+        sectionTitle = new JLabel("Log a savings contribution");
         sectionTitle.setFont(sectionTitle.getFont().deriveFont(Font.BOLD, 16f));
         sectionTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
         content.add(sectionTitle);
@@ -97,35 +95,38 @@ public class LogContributionView extends JPanel implements LogContributionViewMo
         final JPanel actionRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         actionRow.setAlignmentX(Component.LEFT_ALIGNMENT);
         actionRow.add(logCButton);
-        actionRow.add(Box.createHorizontalStrut(12));
+        actionRow.add(Box.createHorizontalStrut(5));
         actionRow.add(statusLabel);
         content.add(actionRow);
-        content.add(Box.createVerticalStrut(14));
+        content.add(Box.createVerticalStrut(15));
 
         final JSeparator separator = new JSeparator();
         separator.setAlignmentX(Component.LEFT_ALIGNMENT);
         separator.setMaximumSize(new Dimension(Integer.MAX_VALUE, 2));
         content.add(separator);
-        content.add(Box.createVerticalStrut(10));
+        content.add(Box.createVerticalStrut(5));
 
         // Set subtitle fonts
-        contributionLoggedLabel.setFont(contributionLoggedLabel.getFont().deriveFont(Font.BOLD, 16f));
-        onTrackLabel.setFont(onTrackLabel.getFont().deriveFont(Font.BOLD, 16f));
+        contributionLoggedLabel.setFont(contributionLoggedLabel.getFont().deriveFont(Font.BOLD, 12f));
+        onTrackLabel.setFont(onTrackLabel.getFont().deriveFont(Font.BOLD, 12f));
 
         // Add components
-        content.add(contributionLoggedLabel);
-        content.add(Box.createVerticalStrut(8));
-        content.add(myGoalDisplayLabel);
-        content.add(savingsProgressLabel);
-        content.add(personalProgressBar);
-        content.add(weeksRemainingLabel);
-        content.add(weeklyRequiredLabel);
-        content.add(weeklyPaceLabel);
-        content.add(Box.createVerticalStrut(10));
-        content.add(onTrackLabel);
-        content.add(Box.createVerticalStrut(8));
-        content.add(groupProgressLabel);
-        content.add(groupProgressBar);
+        contributionLoggedPanel.setLayout(new BoxLayout(contributionLoggedPanel, BoxLayout.Y_AXIS));
+        contributionLoggedPanel.add(contributionLoggedLabel);
+        contributionLoggedPanel.add(Box.createVerticalStrut(8));
+        contributionLoggedPanel.add(myGoalDisplayLabel);
+        contributionLoggedPanel.add(savingsProgressLabel);
+        contributionLoggedPanel.add(personalProgressBar);
+        contributionLoggedPanel.add(weeksRemainingLabel);
+        contributionLoggedPanel.add(weeklyRequiredLabel);
+        contributionLoggedPanel.add(weeklyPaceLabel);
+        contributionLoggedPanel.add(Box.createVerticalStrut(10));
+        contributionLoggedPanel.add(onTrackLabel);
+        contributionLoggedPanel.add(Box.createVerticalStrut(8));
+        contributionLoggedPanel.add(groupProgressLabel);
+        contributionLoggedPanel.add(groupProgressBar);
+
+        content.add(contributionLoggedPanel);
 
         add(content, BorderLayout.CENTER);
 
@@ -176,11 +177,16 @@ public class LogContributionView extends JPanel implements LogContributionViewMo
     // after first contribution and goal is logged
     public void updateView() {
         LogContributionState state = logContributionViewModel.getState();
+        // take this out before merging
+        System.out.println("Status message in view: " + state.getStatusMessage());
+
+        sectionTitle.setText("Log Savings Contribution (in " + state.getHomeCurrency() + ")");
 
         myGoalPanel.setVisible(!state.isHasSavingsGoal());
         myGoalDisplayLabel.setVisible(state.isHasSavingsGoal());
-
         statusLabel.setText(state.getStatusMessage());
+        contributionLoggedPanel.setVisible(state.isHasSavingsGoal());
+
 
         myGoalDisplayLabel.setText("My goal: " + state.getSavingsGoal());
 
@@ -188,11 +194,11 @@ public class LogContributionView extends JPanel implements LogContributionViewMo
 
         savingsProgressLabel.setText("Saved " + state.getTotalSaved() + " of " + state.getSavingsGoal());
 
-        weeksRemainingLabel.setText("weeks until the trip starts: " + state.getWeeksRemaining());
+        weeksRemainingLabel.setText("Weeks until the trip starts: " + state.getWeeksRemaining());
 
         onTrackLabel.setText(state.isOnTrack() ? "On track" : "Behind: save more each week to reach your goal");
 
-        groupProgressLabel.setText("Saved " + state.getGroupSaved() + " of " + state.getGroupGoal());
+        groupProgressLabel.setText("Group: " + state.getGroupSaved() + " of " + state.getGroupGoal());
 
         personalProgressBar.setValue((int) (Math.min(state.getUserProgress(), 1.0) * 100));
 
@@ -212,9 +218,8 @@ public class LogContributionView extends JPanel implements LogContributionViewMo
 
         // Show error or success message
         statusLabel.setForeground(
-                state.isError() ? ERROR_COLOR : SUCCESS_COLOR
+                state.isError() ? ERROR_COLOUR : SUCCESS_COLOUR
         );
-
         // Hide weekly information when the goal is reached
         weeklyRequiredLabel.setVisible(!state.isUserGoalReached());
         weeklyPaceLabel.setVisible(!state.isUserGoalReached());

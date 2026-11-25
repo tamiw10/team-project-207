@@ -154,7 +154,7 @@ public class LogContributionInteractor implements LogContributionInputBoundary {
         // Weeks remaining until trip
         final long daysRemainingLong = ChronoUnit.DAYS.between(date, trip.getStartDate());
         final int daysRemaining = Math.toIntExact(daysRemainingLong);
-        final int weeksRemaining = max(1, Math.ceilDiv(daysRemaining, 7));
+        final int weeksRemaining = max(1, (daysRemaining + 6) / 7);
 
         // 4a. The user's total savings are now equal to or more than their goal.
         if (userGoalReached) {
@@ -201,7 +201,7 @@ public class LogContributionInteractor implements LogContributionInputBoundary {
             final LocalDate firstContributionDate = userContributions.get(0).getDate();
             final long daysElapsedLong = ChronoUnit.DAYS.between(firstContributionDate, date);
             final int daysElapsed = Math.toIntExact(daysElapsedLong);
-            final int weeksElapsed = max(1, Math.ceilDiv(daysElapsed, 7));
+            final int weeksElapsed = max(1, (daysElapsed + 6) / 7);
             final BigDecimal weeklyPaceBig = BigDecimal.valueOf(totalSaved / weeksElapsed)
                                             .setScale(2, RoundingMode.HALF_UP);
             final double weeklyPace = weeklyPaceBig.doubleValue();
