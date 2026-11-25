@@ -165,6 +165,8 @@ public class AppBuilder {
     logContributionView = new LogContributionView(logContributionViewModel);
     logContributionView.setViewManagerModel(viewManagerModel);
     cardPanel.add(logContributionView, logContributionViewModel.VIEW_NAME);
+    return this;
+  }
   /**
    * Adds the form for creating a trip.
    *
@@ -401,7 +403,9 @@ public class AppBuilder {
     logContributionViewModel.notifyStateChanged();
     viewManagerModel.setState(LogContributionViewModel.VIEW_NAME);
     viewManagerModel.notifyViewChanged();
-   * Adds the Create Trip Use Case to the application.
+  }
+  /**
+   *Adds the Create Trip Use Case to the application.
    *
    * @return this builder
    */

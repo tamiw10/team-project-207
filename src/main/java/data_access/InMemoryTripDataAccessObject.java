@@ -26,13 +26,13 @@ import use_case.vote.VoteDataAccessInterface;
  * need a new method, add it here and to {@link JsonFileTripDataAccessObject} only if it changes
  * stored data.
  */
-public class InMemoryTripDataAccessObject implements LogContributionTripDataAccessInterface {
 public class InMemoryTripDataAccessObject
     implements CreateTripDataAccessInterface,
         DailyBudgetDataAccessInterface,
         LogExpenseDataAccessInterface,
         SuggestIdeaDataAccessInterface,
-        VoteDataAccessInterface {
+        VoteDataAccessInterface,
+        LogContributionTripDataAccessInterface {
 
   private final Map<String, Trip> trips = new LinkedHashMap<>();
   private final Map<String, Expense> expenses = new LinkedHashMap<>();

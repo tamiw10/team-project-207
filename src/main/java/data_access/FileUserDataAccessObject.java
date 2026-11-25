@@ -19,7 +19,7 @@ public class FileUserDataAccessObject
         LoginUserDataAccessInterface,
         ChangePasswordUserDataAccessInterface,
         LogoutUserDataAccessInterface,
-        LogContributionUserDataAccessInterface {
+        LogContributionUserDataAccessInterface,
         CreateTripUserDataAccessInterface {
 
   private static final String HEADER = "username,password";

@@ -199,6 +199,7 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
 
   public void setOnOpenLogContribution(Runnable onOpenLogContribution) {
     this.onOpenLogContribution = onOpenLogContribution;
+  }
   /**
    * Sets the callback invoked when the user clicks the Log Expense button.
    *
