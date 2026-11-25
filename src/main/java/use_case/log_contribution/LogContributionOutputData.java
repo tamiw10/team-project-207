@@ -5,6 +5,7 @@ public class LogContributionOutputData {
     private final String tripID;
     private final String tripName;
     private final String homeCurrency;
+    private final boolean hasSavingsGoal;
     private final double savingsGoal;
     private final double totalSaved;
     private final double amountRemaining;
@@ -22,6 +23,7 @@ public class LogContributionOutputData {
     public LogContributionOutputData(String tripID,
                                      String tripName,
                                      String homeCurrency,
+                                     boolean hasSavingsGoal,
                                      double savingsGoal,
                                      double totalSaved,
                                      double amountRemaining,
@@ -38,6 +40,7 @@ public class LogContributionOutputData {
         this.tripID = tripID;
         this.tripName = tripName;
         this.homeCurrency = homeCurrency;
+        this.hasSavingsGoal = hasSavingsGoal;
         this.savingsGoal = savingsGoal;
         this.totalSaved = totalSaved;
         this.amountRemaining = amountRemaining;
@@ -58,6 +61,8 @@ public class LogContributionOutputData {
     public String getTripName() { return tripName; }
 
     public String getHomeCurrency() { return homeCurrency; }
+
+    public boolean isHasSavingsGoal() { return hasSavingsGoal; }
 
     public double getSavingsGoal() {
         return savingsGoal;

@@ -1,13 +1,11 @@
 package interface_adapter.log_contribution;
 
-import entity.Trip;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class LogContributionViewModel {
 
-    public final String VIEW_NAME = "log a contribution";
+    public static String VIEW_NAME = "log a contribution";
 
     private final List<LogContributionViewModelListener> listeners = new ArrayList<>();
     private LogContributionState state = new LogContributionState();

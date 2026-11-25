@@ -11,6 +11,7 @@ import java.util.List;
  * {@link data_access.JsonFileTripDataAccessObject}. (not true yet)
  */
 public interface LogContributionTripDataAccessInterface {
+
     /**
      * Returns the trip with the given id.
      *
