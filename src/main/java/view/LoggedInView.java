@@ -27,6 +27,9 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
   private final JTextField passwordInputField = new JTextField(15);
   private final JButton changePassword;
 
+  private Runnable onOpenLogContribution;
+  private final JButton logContributionButton;
+
   public LoggedInView(LoggedInViewModel loggedInViewModel) {
     this.loggedInViewModel = loggedInViewModel;
     this.loggedInViewModel.addListener(this);
@@ -96,6 +99,16 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
     this.add(passwordInfo);
     this.add(passwordErrorField);
     this.add(buttons);
+
+    logContributionButton = new JButton("Log Contribution");
+    buttons.add(logContributionButton);
+
+    logContributionButton.addActionListener(
+            evt -> {
+              if (onOpenLogContribution != null) {
+                onOpenLogContribution.run();
+              }
+            });
   }
 
   /**
@@ -134,5 +147,9 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
     } else {
       JOptionPane.showMessageDialog(this, state.getPasswordError());
     }
+  }
+
+  public void setOnOpenLogContribution(Runnable onOpenLogContribution) {
+    this.onOpenLogContribution = onOpenLogContribution;
   }
 }
