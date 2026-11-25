@@ -21,7 +21,7 @@ public class InMemoryUserDataAccessObject
         LoginUserDataAccessInterface,
         ChangePasswordUserDataAccessInterface,
         LogoutUserDataAccessInterface,
-        LogContributionUserDataAccessInterface {
+        LogContributionUserDataAccessInterface,
         CreateTripUserDataAccessInterface {
 
   private final Map<String, User> users = new HashMap<>();
