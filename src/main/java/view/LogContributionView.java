@@ -107,8 +107,8 @@ public class LogContributionView extends JPanel implements LogContributionViewMo
         content.add(Box.createVerticalStrut(5));
 
         // Set subtitle fonts
-        contributionLoggedLabel.setFont(contributionLoggedLabel.getFont().deriveFont(Font.BOLD, 12f));
-        onTrackLabel.setFont(onTrackLabel.getFont().deriveFont(Font.BOLD, 12f));
+        contributionLoggedLabel.setFont(contributionLoggedLabel.getFont().deriveFont(Font.BOLD, 14f));
+        onTrackLabel.setFont(onTrackLabel.getFont().deriveFont(Font.BOLD, 14f));
 
         // Add components
         contributionLoggedPanel.setLayout(new BoxLayout(contributionLoggedPanel, BoxLayout.Y_AXIS));
@@ -190,19 +190,34 @@ public class LogContributionView extends JPanel implements LogContributionViewMo
 
         myGoalDisplayLabel.setText("My goal: " + state.getSavingsGoal());
 
-        contributionLoggedLabel.setText("Contributions Logged");
+        contributionLoggedLabel.setForeground(SUCCESS_COLOUR);
 
+        if (state.isUserGoalReached()) {
+            contributionLoggedLabel.setText("Goal reached!");
+        } else {
+            contributionLoggedLabel.setText("Contributions Logged");
+
+        }
         savingsProgressLabel.setText("Saved " + state.getTotalSaved() + " of " + state.getSavingsGoal());
 
         weeksRemainingLabel.setText("Weeks until the trip starts: " + state.getWeeksRemaining());
 
-        onTrackLabel.setText(state.isOnTrack() ? "On track" : "Behind: save more each week to reach your goal");
+        if (!state.isGroupGoalReached()) {
+            onTrackLabel.setForeground(state.isOnTrack() ? SUCCESS_COLOUR : ERROR_COLOUR);
+            onTrackLabel.setText(state.isOnTrack() ? "On track" : "Behind: save more each week to reach your goal");
+        } else {
+            onTrackLabel.setText("");
+        }
 
         groupProgressLabel.setText("Group: " + state.getGroupSaved() + " of " + state.getGroupGoal());
 
         personalProgressBar.setValue((int) (Math.min(state.getUserProgress(), 1.0) * 100));
 
         groupProgressBar.setValue((int) (Math.min(state.getGroupProgress(), 1.0) * 100));
+
+        // Hide weekly information when the goal is reached
+        weeklyRequiredLabel.setVisible(!state.isUserGoalReached());
+        weeklyPaceLabel.setVisible(!state.isUserGoalReached());
 
         if (!state.isUserGoalReached()) {
             weeklyRequiredLabel.setText("You need to save " + state.getWeeklyRequired() + " per week from now");
@@ -220,9 +235,6 @@ public class LogContributionView extends JPanel implements LogContributionViewMo
         statusLabel.setForeground(
                 state.isError() ? ERROR_COLOUR : SUCCESS_COLOUR
         );
-        // Hide weekly information when the goal is reached
-        weeklyRequiredLabel.setVisible(!state.isUserGoalReached());
-        weeklyPaceLabel.setVisible(!state.isUserGoalReached());
 
         revalidate();
         repaint();
