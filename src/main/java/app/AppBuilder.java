@@ -3,6 +3,11 @@ package app;
 import data_access.FileUserDataAccessObject;
 import data_access.FrankfurterExchangeRateGateway;
 import data_access.JsonFileTripDataAccessObject;
+import entity.Contribution;
+import entity.Trip;
+import entity.UserFactory;
+import interface_adapter.ViewManagerModel;
+import interface_adapter.log_contribution.LogContributionState;
 import entity.Trip;
 import entity.UserFactory;
 import interface_adapter.ViewManagerModel;
@@ -34,6 +39,10 @@ import interface_adapter.vote.ActivitiesViewModel;
 import interface_adapter.vote.VoteController;
 import interface_adapter.vote.VotePresenter;
 import java.awt.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.swing.*;
@@ -73,6 +82,17 @@ import view.LoginView;
 import view.SignupView;
 import view.TripView;
 import view.ViewManager;
+import interface_adapter.log_contribution.LogContributionController;
+import interface_adapter.log_contribution.LogContributionPresenter;
+import interface_adapter.log_contribution.LogContributionViewModel;
+import use_case.log_contribution.LogContributionInputBoundary;
+import use_case.log_contribution.LogContributionInteractor;
+import use_case.log_contribution.LogContributionOutputBoundary;
+import view.LogContributionView;
+import use_case.log_contribution.LogContributionUserDataAccessInterface;
+import use_case.log_contribution.LogContributionTripDataAccessInterface;
+
+import static java.lang.Math.max;
 
 public class AppBuilder {
   private final JPanel cardPanel = new JPanel();
@@ -80,6 +100,11 @@ public class AppBuilder {
   final UserFactory userFactory = new UserFactory();
   final ViewManagerModel viewManagerModel = new ViewManagerModel();
   ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
+
+  // for Use Case 2:
+  private LogContributionViewModel logContributionViewModel;
+  private LogContributionView logContributionView;
+  private LogContributionController logContributionController;
 
   // ----- Shared data access objects -----
   // Users are saved to users.csv (course starter code).
@@ -135,6 +160,11 @@ public class AppBuilder {
     return this;
   }
 
+  public AppBuilder addLogContributionView() {
+    logContributionViewModel = new LogContributionViewModel();
+    logContributionView = new LogContributionView(logContributionViewModel);
+    logContributionView.setViewManagerModel(viewManagerModel);
+    cardPanel.add(logContributionView, logContributionViewModel.VIEW_NAME);
   /**
    * Adds the form for creating a trip.
    *
@@ -234,6 +264,143 @@ public class AppBuilder {
   }
 
   /**
+   * Adds Use Case 2: Log Contribution to the application
+   * @return this builder
+   */
+  public AppBuilder addLogContributionUseCase() {
+    final LogContributionOutputBoundary logContributionOutputBoundary =
+            new LogContributionPresenter(logContributionViewModel);
+
+    final LogContributionInputBoundary logContributionInteractor =
+            new LogContributionInteractor(userDataAccessObject, tripDataAccessObject, logContributionOutputBoundary);
+
+    final LogContributionController logContributionController =
+            new LogContributionController(logContributionInteractor);
+
+    logContributionView.setLogContributionController(logContributionController);
+
+    if (loggedInView != null) {
+      loggedInView.setOnOpenLogContribution(this::openLogContributionForCurrentUser);
+    }
+    return this;
+
+  }
+
+  private void openLogContributionForCurrentUser() {
+    final String username = loggedInViewModel.getState().getUsername();
+    Trip trip = null;
+    if (tripDataAccessObject.getCurrentTripId() != null) {
+      trip = tripDataAccessObject.getTrip(tripDataAccessObject.getCurrentTripId());
+    }
+    if (trip == null && username != null && !username.isBlank()) {
+      final List<Trip> memberTrips = tripDataAccessObject.getTripsForMember(username);
+      if (!memberTrips.isEmpty()) {
+        trip = memberTrips.get(0);
+      }
+    }
+    if (trip == null) {
+      trip = tripDataAccessObject.getTrip(SampleDataSeeder.SAMPLE_TRIP_ID);
+    }
+
+    final LogContributionState state = logContributionViewModel.getState();
+    state.setStatusMessage("");
+    state.setError(false);
+    state.setClearForm(false);
+
+    if (trip != null) {
+      tripDataAccessObject.setCurrentTripId(trip.getId());
+      state.setTripID(trip.getId());
+      state.setTripName(trip.getName());
+      state.setHomeCurrency(trip.getHomeCurrency());
+      state.setHasSavingsGoal(trip.hasSavingsGoal(username));
+
+      // Calculations
+      final List<Contribution> groupContributions = tripDataAccessObject.getContributions(trip.getId());
+      final List<Contribution> userContributions = tripDataAccessObject.getContributions(trip.getId(), username);
+      final LocalDate today = LocalDate.now();
+
+      // Weeks Remaining
+      final long daysRemainingLong = ChronoUnit.DAYS.between(today, trip.getStartDate());
+      final int daysRemaining = Math.toIntExact(daysRemainingLong);
+      final int weeksRemaining = max(1, (daysRemaining + 6) / 7);
+      state.setWeeksRemaining(Double.toString(weeksRemaining));
+
+      // User goal
+      if (trip.hasSavingsGoal(username)) {
+        double tSaved = 0;
+        for (Contribution userContribution : userContributions) {
+          tSaved += userContribution.getAmount();
+        }
+        final double totalSaved = tSaved;
+        state.setTotalSaved(Double.toString(totalSaved));
+        state.setSavingsGoal(Double.toString(trip.getSavingsGoal(username)));
+        state.setUserProgress(totalSaved / trip.getSavingsGoal(username));
+        state.setUserGoalReached(totalSaved >= trip.getSavingsGoal(username));
+
+        //Weekly Required
+        final double amountRemaining = trip.getSavingsGoal(username) - totalSaved;
+        final BigDecimal weeklyRequiredBig = BigDecimal.valueOf(amountRemaining / weeksRemaining)
+                .setScale(2, RoundingMode.HALF_UP);
+        final double weeklyRequired = weeklyRequiredBig.doubleValue();
+        state.setWeeklyRequired(Double.toString(weeklyRequired));
+
+        if (userContributions.isEmpty()) {
+          state.setWeeklyPace("");
+          // On Track
+          state.setOnTrack(false);
+
+        } else {
+          final LocalDate firstContributionDate = userContributions.get(0).getDate();
+          final long daysElapsedLong = ChronoUnit.DAYS.between(firstContributionDate, today);
+          final int daysElapsed = Math.toIntExact(daysElapsedLong);
+          final int weeksElapsed = max(1, (daysElapsed + 6) / 7);
+          final BigDecimal weeklyPaceBig = BigDecimal.valueOf(totalSaved / weeksElapsed)
+                  .setScale(2, RoundingMode.HALF_UP);
+          final double weeklyPace = weeklyPaceBig.doubleValue();
+          state.setWeeklyPace(Double.toString(weeklyPace));
+          // On Track
+          state.setOnTrack(weeklyPace >= weeklyRequired);
+        }
+
+      } else {
+        state.setSavingsGoal("");
+        state.setTotalSaved("$0.00");
+        state.setUserProgress(0.0);
+        state.setUserGoalReached(false);
+        state.setWeeklyRequired("");
+        state.setWeeklyPace("");
+        state.setOnTrack(false);
+      }
+
+      // Group
+      if (trip.getSavingsGoals().isEmpty()) {
+        state.setGroupSaved("$0.00");
+        state.setGroupGoal("");
+        state.setGroupProgress(0.0);
+        state.setGroupGoalReached(false);
+
+      } else {
+        double gSaved = 0;
+        for (Contribution groupContribution : groupContributions) {
+          gSaved += groupContribution.getAmount();
+        }
+        final double groupSaved = gSaved;
+        state.setGroupSaved(Double.toString(groupSaved));
+        state.setGroupGoal(Double.toString(trip.getTotalSavingsGoal()));
+        state.setGroupProgress(groupSaved / trip.getTotalSavingsGoal());
+        state.setGroupGoalReached(groupSaved >= trip.getTotalSavingsGoal());
+      }
+
+
+    } else {
+      state.setTripID("");
+      state.setTripName("");
+      state.setStatusMessage("No trip found. Run SampleDataSeeder first");
+      state.setError(true);
+    }
+    logContributionViewModel.notifyStateChanged();
+    viewManagerModel.setState(LogContributionViewModel.VIEW_NAME);
+    viewManagerModel.notifyViewChanged();
    * Adds the Create Trip Use Case to the application.
    *
    * @return this builder

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.function.Function;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import use_case.log_contribution.LogContributionTripDataAccessInterface;
 
 /**
  * Stores trips, expenses, contributions and activity ideas in one JSON file, so data is still there

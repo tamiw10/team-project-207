@@ -4,6 +4,8 @@ import entity.ActivityIdea;
 import entity.Contribution;
 import entity.Expense;
 import entity.Trip;
+import use_case.log_contribution.LogContributionTripDataAccessInterface;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,6 +26,7 @@ import use_case.vote.VoteDataAccessInterface;
  * need a new method, add it here and to {@link JsonFileTripDataAccessObject} only if it changes
  * stored data.
  */
+public class InMemoryTripDataAccessObject implements LogContributionTripDataAccessInterface {
 public class InMemoryTripDataAccessObject
     implements CreateTripDataAccessInterface,
         DailyBudgetDataAccessInterface,
@@ -70,6 +73,7 @@ public class InMemoryTripDataAccessObject
   @Override
   public void saveTrip(Trip trip) {
     trips.put(trip.getId(), trip);
+    setCurrentTripId(trip.getId());
     onDataChanged();
   }
 
@@ -175,6 +179,23 @@ public class InMemoryTripDataAccessObject
     final List<Contribution> result = new ArrayList<>();
     for (Contribution contribution : contributions.values()) {
       if (contribution.getTripId().equals(tripId)) {
+        result.add(contribution);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Returns every contribution logged for a trip by a specific user, in the order they were logged.
+   *
+   * @param tripId the trip
+   * @param username the user
+   * @return the trip's contributions by the user
+   */
+  public List<Contribution> getContributions(String tripId, String username) {
+    final List<Contribution> result = new ArrayList<>();
+    for (Contribution contribution : contributions.values()) {
+      if (contribution.getTripId().equals(tripId) && contribution.getMemberUsername().equals(username)) {
         result.add(contribution);
       }
     }

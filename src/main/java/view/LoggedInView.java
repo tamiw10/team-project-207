@@ -37,6 +37,9 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
   private Runnable onOpenLogExpense;
   private final JButton logExpenseButton;
 
+  private Runnable onOpenLogContribution;
+  private final JButton logContributionButton;
+
   public LoggedInView(LoggedInViewModel loggedInViewModel) {
     this.loggedInViewModel = loggedInViewModel;
     this.loggedInViewModel.addListener(this);
@@ -117,6 +120,15 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
     this.add(passwordErrorField);
     this.add(buttons);
 
+    logContributionButton = new JButton("Log Contribution");
+    buttons.add(logContributionButton);
+
+    logContributionButton.addActionListener(
+            evt -> {
+              if (onOpenLogContribution != null) {
+                onOpenLogContribution.run();
+              }
+            });
     logExpenseButton = new JButton("Log Expense");
     buttons.add(logExpenseButton);
 
@@ -185,6 +197,8 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
     }
   }
 
+  public void setOnOpenLogContribution(Runnable onOpenLogContribution) {
+    this.onOpenLogContribution = onOpenLogContribution;
   /**
    * Sets the callback invoked when the user clicks the Log Expense button.
    *
