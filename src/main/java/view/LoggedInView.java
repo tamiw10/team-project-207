@@ -1,5 +1,6 @@
 package view;
 
+import interface_adapter.create_trip.CreateTripController;
 import interface_adapter.logged_in.ChangePasswordController;
 import interface_adapter.logged_in.LoggedInState;
 import interface_adapter.logged_in.LoggedInViewModel;
@@ -19,13 +20,22 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
   private final JLabel passwordErrorField = new JLabel();
   private ChangePasswordController changePasswordController = null;
   private LogoutController logoutController;
+  private Runnable openActivitiesAction = () -> {};
+  private CreateTripController createTripController;
 
   private final JLabel username;
 
   private final JButton logOut;
+  private final JButton activities;
+  private final JButton newTrip;
 
   private final JTextField passwordInputField = new JTextField(15);
   private final JButton changePassword;
+  private final JButton dailyBudget = new JButton("Daily Budget");
+  private Runnable openDailyBudgetAction = () -> {};
+
+  private Runnable onOpenLogExpense;
+  private final JButton logExpenseButton;
 
   private Runnable onOpenLogContribution;
   private final JButton logContributionButton;
@@ -44,13 +54,23 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
     username = new JLabel();
 
     final JPanel buttons = new JPanel();
+    newTrip = new JButton("New Trip");
+    buttons.add(newTrip);
     logOut = new JButton("Log Out");
     buttons.add(logOut);
 
     changePassword = new JButton("Change Password");
     buttons.add(changePassword);
+    dailyBudget.setVisible(false);
+    dailyBudget.addActionListener(event -> openDailyBudgetAction.run());
+    buttons.add(dailyBudget);
+
+    activities = new JButton("Vote on Activities");
+    buttons.add(activities);
+    activities.addActionListener(evt -> openActivitiesAction.run());
 
     logOut.addActionListener(this);
+    newTrip.addActionListener(evt -> createTripController.openForm());
 
     this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
@@ -109,6 +129,15 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
                 onOpenLogContribution.run();
               }
             });
+    logExpenseButton = new JButton("Log Expense");
+    buttons.add(logExpenseButton);
+
+    logExpenseButton.addActionListener(
+        evt -> {
+          if (onOpenLogExpense != null) {
+            onOpenLogExpense.run();
+          }
+        });
   }
 
   /**
@@ -126,8 +155,27 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
     this.changePasswordController = changePasswordController;
   }
 
+  /**
+   * Sets what the Vote on Activities button does.
+   *
+   * @param openActivitiesAction runs when the user clicks the button
+   */
+  public void setOpenActivitiesAction(Runnable openActivitiesAction) {
+    this.openActivitiesAction = openActivitiesAction;
+  }
+
   public void setLogoutController(LogoutController logoutController) {
     this.logoutController = logoutController;
+  }
+
+  public void setCreateTripController(CreateTripController createTripController) {
+    this.createTripController = createTripController;
+  }
+
+  /** Connects the entry point for the trip budget screen. */
+  public void setOpenDailyBudgetAction(Runnable openBudget) {
+    openDailyBudgetAction = openBudget;
+    dailyBudget.setVisible(true);
   }
 
   /** The logged-in state was updated. */
@@ -151,5 +199,12 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
 
   public void setOnOpenLogContribution(Runnable onOpenLogContribution) {
     this.onOpenLogContribution = onOpenLogContribution;
+  /**
+   * Sets the callback invoked when the user clicks the Log Expense button.
+   *
+   * @param onOpenLogExpense the navigation callback
+   */
+  public void setOnOpenLogExpense(Runnable onOpenLogExpense) {
+    this.onOpenLogExpense = onOpenLogExpense;
   }
 }

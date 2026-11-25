@@ -38,7 +38,7 @@ A **user** signs up with a username and password. A user can create a **trip** b
 2. **Save up together.** As a trip member, I want to log what I put aside and be told whether I am saving fast enough, so that I reach my savings goal before the trip starts.
 3. **Log spending in any currency.** As a traveller, I want to log what I spend in whatever currency I paid in, so that the group has one record of spending in our home currency.
 4. **Stay on budget each day.** As a traveller, I want to see how much the group can still spend today, counting what was left over or overspent on earlier days, and whether we are heading over budget for the whole trip, so that we know whether we need to cut back.
-5. **Decide what to do.** As a trip member, I want to spend my votes on the activity ideas for each day, so that we spend our time on what the group wants most.
+5. **Decide what to do.** As a trip member, I want to suggest activity ideas for each day and spend my votes on them, so that we spend our time on what the group wants most.
 
 ---
 
@@ -222,7 +222,7 @@ These apply to every use case below, so they are stated once here.
   * **6a.2a.** The amount is not a number or is negative.
     1. The system explains the problem and keeps the current budget.
 
-### Use Case 5: Vote on activity ideas
+### Use Case 5: Suggest and vote on activity ideas
 
 **Lead:** Amelia Ha
 
@@ -232,13 +232,13 @@ These apply to every use case below, so they are stated once here.
 
 **Preconditions:**
 
-* The user is a member of the trip and is viewing a day's activity ideas, and there is at least one.
+* The user is a member of the trip and is viewing a day of the trip on the activities screen.
 
-**Trigger:** The user asks to vote for an idea.
+**Trigger:** The user asks to suggest an activity idea for the day, or asks to vote for an idea.
 
-**Success outcome:** The user's vote is counted once for that idea, the day's ideas are ranked by number of votes (ties go to the idea suggested first), and the user knows how many of their three votes for that day are left.
+**Success outcome:** A suggested idea appears in the day's ideas with no votes. A vote is counted once for that idea, the day's ideas are ranked by number of votes (ties go to the idea suggested first), and the user knows how many of their three votes for that day are left.
 
-**Main success scenario:**
+**Main success scenario: voting**
 
 1. The user asks to vote for an idea.
 2. The system counts how many of their three votes for that day the user has already used.
@@ -256,6 +256,25 @@ These apply to every use case below, so they are stated once here.
 * **4a.** Two or more ideas have the same number of votes.
   1. The system ranks the idea that was suggested first higher.
 
+**Main success scenario: suggesting an idea** (so that there is something to vote on)
+
+* **S1.** The user chooses a day and provides a title for the idea and, if they like, its estimated cost in the trip's home currency.
+* **S2.** The system checks the details.
+* **S3.** The system saves the idea for that day as suggested by the user, with no votes.
+* **S4.** The system ranks the day's ideas by number of votes. The new idea has no votes, so it comes after every idea that has votes and after every earlier idea that has none.
+* **S5.** The system shows the ranked ideas, including the new one. The user can now vote for it as in the main success scenario above.
+
+**Extensions:**
+
+* **S2a.** The title is missing.
+  1. The system explains the problem and saves nothing.
+* **S2b.** The estimated cost is not a number, or is negative.
+  1. The system explains the problem and saves nothing.
+* **S2c.** The estimated cost is left blank.
+  1. The system treats the idea as free (a cost of zero).
+
+In this version an idea cannot be edited or removed once it has been suggested; only votes can be taken back.
+
 ---
 
 ## Minimal Viable Product (MVP)
@@ -268,9 +287,9 @@ All five use cases are in the MVP, and each member leads one. Sign up, log in an
 | Emily Tran | 2. Log a savings contribution |
 | Jadyn Nok Tong Mo | 3. Log an expense |
 | Yi Xuan (Jessica) Su | 4. View the daily budget |
-| Amelia Ha | 5. Vote on activity ideas |
+| Amelia Ha | 5. Suggest and vote on activity ideas |
 
-Small supporting screens are needed to run these but are not use cases that anyone leads: the list of the user's trips and the trip screen that links to the five use cases, and a basic form to suggest an activity idea (so that there is something to vote on).
+Small supporting screens are needed to run these but are not use cases that anyone leads: the list of the user's trips and the trip screen that links to the five use cases. (The form to suggest an activity idea is part of Use Case 5.)
 
 ---
 
@@ -441,7 +460,9 @@ sequenceDiagram
     end
 ```
 
-#### Use Case 5: Vote on activity ideas
+#### Use Case 5: Suggest and vote on activity ideas
+
+Voting (the ranking itself is done by the shared `IdeaRanking` helper in `use_case.idea_ranking`, which the suggest use case uses too, so the rule lives in one place):
 
 ```mermaid
 sequenceDiagram
@@ -459,8 +480,35 @@ sequenceDiagram
     alt no votes left
         I->>P: 5 prepareFailView with the message
     else vote added or removed
-        I->>D: saveActivityIdea with the changed votes
+        I->>D: saveVote with the changed idea (if saving fails the vote is put back and prepareFailView is called)
         I->>P: 5 prepareSuccessView with the ranked ideas and votes left
+    end
+    P->>M: 6 update state
+    M-->>V: 7 notify the View, Observer
+```
+
+Opening the screen: the Logged In view calls `VoteController.open`, the interactor picks the trip (the open one, else the first the user belongs to), loads its first day with ideas and the presenter switches to the activities view.
+
+Suggesting an idea (same screen, its own interactor, controller and presenter):
+
+```mermaid
+sequenceDiagram
+    participant V as ActivitiesView
+    participant C as SuggestIdeaController
+    participant I as SuggestIdeaInteractor
+    participant D as Data access for trips, activity ideas
+    participant P as SuggestIdeaPresenter
+    participant M as ActivitiesViewModel
+    V->>C: 1 click Add idea with the title and cost
+    C->>I: 2 execute with SuggestIdeaInputData
+    I->>D: 3 get the trip and the day's ideas
+    D-->>I: 4 trip, ideas
+    Note over I: Decide: member of the trip, day inside the trip, title present, cost blank or a number that is not negative
+    alt a check fails
+        I->>P: 5 prepareFailView with the message
+    else all checks pass
+        I->>D: saveActivityIdea with the new idea and no votes
+        I->>P: 5 prepareSuccessView with the ranked ideas including the new one
     end
     P->>M: 6 update state
     M-->>V: 7 notify the View, Observer
@@ -484,7 +532,8 @@ Tests: `mvn test` · Coverage report: `mvn verify`, then open `target/site/jacoc
 ### Future extensions
 - Invite more friends to an existing trip
 - Standalone currency converter screen (reuses the same exchange rate interface)
-- Set a savings goal and suggest activities as full use cases of their own
+- Set a savings goal as a full use case of its own
+- Edit or remove an activity idea after it has been suggested
 - Save flights, transport, restaurants and lodging to the trip with their prices
 - Split costs and show who owes whom
 - Trip-wide spending charts

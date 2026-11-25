@@ -10,6 +10,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import use_case.create_trip.CreateTripDataAccessInterface;
+import use_case.daily_budget.DailyBudgetDataAccessInterface;
+import use_case.log_expense.LogExpenseDataAccessInterface;
+import use_case.suggest_idea.SuggestIdeaDataAccessInterface;
+import use_case.vote.VoteDataAccessInterface;
 
 /**
  * Keeps trips and everything logged against them in memory. Use this in unit tests. {@link
@@ -22,6 +27,12 @@ import java.util.Map;
  * stored data.
  */
 public class InMemoryTripDataAccessObject implements LogContributionTripDataAccessInterface {
+public class InMemoryTripDataAccessObject
+    implements CreateTripDataAccessInterface,
+        DailyBudgetDataAccessInterface,
+        LogExpenseDataAccessInterface,
+        SuggestIdeaDataAccessInterface,
+        VoteDataAccessInterface {
 
   private final Map<String, Trip> trips = new LinkedHashMap<>();
   private final Map<String, Expense> expenses = new LinkedHashMap<>();
@@ -37,6 +48,7 @@ public class InMemoryTripDataAccessObject implements LogContributionTripDataAcce
    *
    * @param tripId the open trip's id, or null if no trip is open
    */
+  @Override
   public void setCurrentTripId(String tripId) {
     this.currentTripId = tripId;
   }
@@ -46,6 +58,7 @@ public class InMemoryTripDataAccessObject implements LogContributionTripDataAcce
    *
    * @return the trip id, or null if no trip is open
    */
+  @Override
   public String getCurrentTripId() {
     return currentTripId;
   }
@@ -57,6 +70,7 @@ public class InMemoryTripDataAccessObject implements LogContributionTripDataAcce
    *
    * @param trip the trip to save
    */
+  @Override
   public void saveTrip(Trip trip) {
     trips.put(trip.getId(), trip);
     setCurrentTripId(trip.getId());
@@ -69,6 +83,7 @@ public class InMemoryTripDataAccessObject implements LogContributionTripDataAcce
    * @param tripId the id to look up
    * @return the trip, or null if there is none
    */
+  @Override
   public Trip getTrip(String tripId) {
     return trips.get(tripId);
   }
@@ -89,6 +104,7 @@ public class InMemoryTripDataAccessObject implements LogContributionTripDataAcce
    * @param username the user
    * @return the user's trips
    */
+  @Override
   public List<Trip> getTripsForMember(String username) {
     final List<Trip> result = new ArrayList<>();
     for (Trip trip : trips.values()) {
@@ -97,6 +113,19 @@ public class InMemoryTripDataAccessObject implements LogContributionTripDataAcce
       }
     }
     return result;
+  }
+
+  @Override
+  public boolean updateDailyBudget(Trip trip, double amount) {
+    final double previousBudget = trip.getDailyBudget();
+    trip.setDailyBudget(amount);
+    try {
+      saveTrip(trip);
+      return true;
+    } catch (DataAccessException exception) {
+      trip.setDailyBudget(previousBudget);
+      return false;
+    }
   }
 
   // ----- Expenses -----
@@ -117,6 +146,7 @@ public class InMemoryTripDataAccessObject implements LogContributionTripDataAcce
    * @param tripId the trip
    * @return the trip's expenses
    */
+  @Override
   public List<Expense> getExpenses(String tripId) {
     final List<Expense> result = new ArrayList<>();
     for (Expense expense : expenses.values()) {
@@ -180,9 +210,27 @@ public class InMemoryTripDataAccessObject implements LogContributionTripDataAcce
    *
    * @param idea the idea to save
    */
+  @Override
   public void saveActivityIdea(ActivityIdea idea) {
     activityIdeas.put(idea.getId(), idea);
     onDataChanged();
+  }
+
+  /**
+   * Saves an activity idea after its votes changed.
+   *
+   * @param idea the idea to save
+   * @return true if it was saved, false if it could not be stored
+   */
+  @Override
+  public boolean saveVote(ActivityIdea idea) {
+    boolean saved = true;
+    try {
+      saveActivityIdea(idea);
+    } catch (DataAccessException ex) {
+      saved = false;
+    }
+    return saved;
   }
 
   /**
@@ -201,6 +249,7 @@ public class InMemoryTripDataAccessObject implements LogContributionTripDataAcce
    * @param tripId the trip
    * @return the trip's activity ideas
    */
+  @Override
   public List<ActivityIdea> getActivityIdeas(String tripId) {
     final List<ActivityIdea> result = new ArrayList<>();
     for (ActivityIdea idea : activityIdeas.values()) {

@@ -10,12 +10,22 @@ public class Main {
             .addLoginView()
             .addSignupView()
             .addLoggedInView()
+            .addAddExpenseView()
+            .addCreateTripView()
+            .addTripView()
+            .addDailyBudgetView()
+            .addActivitiesView()
             .addSignupUseCase()
             .addLoginUseCase()
             .addLogContributionView()
             .addChangePasswordUseCase()
             .addLogoutUseCase()
             .addLogContributionUseCase()
+            .addLogExpenseUseCase()
+            .addCreateTripUseCase()
+            .addDailyBudgetUseCase()
+            .addVoteUseCase()
+            .addSuggestIdeaUseCase()
             .build();
 
     application.pack();
