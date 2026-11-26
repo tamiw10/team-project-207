@@ -145,7 +145,11 @@ public class LoggedInView extends JPanel implements ActionListener, LoggedInView
     this.createTripController = createTripController;
   }
 
-  /** Connects the entry point for the trip budget screen. */
+  /**
+   * Shows the Daily Budget button and connects it to the budget screen.
+   *
+   * @param openBudget the action that opens the budget screen
+   */
   public void setOpenDailyBudgetAction(Runnable openBudget) {
     openDailyBudgetAction = openBudget;
     dailyBudget.setVisible(true);

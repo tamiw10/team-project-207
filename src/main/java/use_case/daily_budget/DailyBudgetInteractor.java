@@ -19,6 +19,13 @@ public final class DailyBudgetInteractor implements DailyBudgetInputBoundary {
   private final Supplier<String> currentUsername;
   private final DailyBudgetOutputBoundary presenter;
 
+  /**
+   * Creates the daily budget interactor.
+   *
+   * @param trips the trip and expense data access boundary
+   * @param currentUsername supplies the signed-in username or {@code null}
+   * @param presenter the output boundary for results and errors
+   */
   public DailyBudgetInteractor(
       DailyBudgetDataAccessInterface trips,
       Supplier<String> currentUsername,
@@ -28,6 +35,7 @@ public final class DailyBudgetInteractor implements DailyBudgetInputBoundary {
     this.presenter = presenter;
   }
 
+  /** Loads the member's trips and prioritizes their current trip. */
   @Override
   public void open() {
     final String username = currentUsername.get();
@@ -48,6 +56,11 @@ public final class DailyBudgetInteractor implements DailyBudgetInputBoundary {
     presenter.showTrips(options);
   }
 
+  /**
+   * Calculates and presents the budget for a valid trip day.
+   *
+   * @param input the selected trip and date
+   */
   @Override
   public void execute(DailyBudgetInputData input) {
     final Trip trip = validateDay(input);
@@ -57,6 +70,11 @@ public final class DailyBudgetInteractor implements DailyBudgetInputBoundary {
     }
   }
 
+  /**
+   * Saves a valid budget before presenting a recalculated summary.
+   *
+   * @param input the selected day and the proposed daily budget
+   */
   @Override
   public void changeBudget(ChangeBudgetInputData input) {
     final Trip trip = validateDay(input.getDay());
@@ -84,6 +102,7 @@ public final class DailyBudgetInteractor implements DailyBudgetInputBoundary {
     presenter.showSummary(summarize(trip, input.getDay().getDate()), true);
   }
 
+  /** Returns the authorized trip, or reports an error and returns {@code null}. */
   private Trip validateDay(DailyBudgetInputData input) {
     final String username = currentUsername.get();
     final Trip trip = trips.getTrip(input.getTripId());
@@ -98,6 +117,7 @@ public final class DailyBudgetInteractor implements DailyBudgetInputBoundary {
     return trip;
   }
 
+  /** Calculates carry-over and projects trip spending through the selected day. */
   private DailyBudgetOutputData summarize(Trip trip, LocalDate date) {
     final BigDecimal budget = BigDecimal.valueOf(trip.getDailyBudget());
     final Map<ExpenseCategory, BigDecimal> categories = new EnumMap<>(ExpenseCategory.class);
