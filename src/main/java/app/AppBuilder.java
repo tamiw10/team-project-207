@@ -191,7 +191,11 @@ public class AppBuilder {
     return this;
   }
 
-  /** Adds the screen for viewing and updating a trip's budget. */
+  /**
+   * Adds the screen for viewing and updating a trip's budget.
+   *
+   * @return this builder
+   */
   public AppBuilder addDailyBudgetView() {
     dailyBudgetViewModel = new DailyBudgetViewModel();
     dailyBudgetView = new DailyBudgetView(dailyBudgetViewModel);
@@ -475,7 +479,11 @@ public class AppBuilder {
     return application;
   }
 
-  /** Wires the budget screen and gives signed-in users access to it. */
+  /**
+   * Wires the daily budget use case to the signed-in screen.
+   *
+   * @return this builder
+   */
   public AppBuilder addDailyBudgetUseCase() {
     final DailyBudgetOutputBoundary presenter = new DailyBudgetPresenter(dailyBudgetViewModel);
     final DailyBudgetInputBoundary interactor = new DailyBudgetInteractor(
@@ -490,6 +498,7 @@ public class AppBuilder {
     return this;
   }
 
+  /** Switches the visible card to the named view. */
   private void showView(String viewName) {
     viewManagerModel.setState(viewName);
     viewManagerModel.notifyViewChanged();

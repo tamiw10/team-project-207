@@ -46,6 +46,11 @@ public final class DailyBudgetView extends JPanel implements DailyBudgetViewMode
   private final JLabel feedback = new JLabel(" ");
   private final JPanel summary = new JPanel();
 
+  /**
+   * Builds the budget screen and subscribes it to the view model.
+   *
+   * @param model the model that publishes trip choices, summaries, and feedback
+   */
   public DailyBudgetView(DailyBudgetViewModel model) {
     super(new BorderLayout(0, 8));
     this.model = model;
@@ -89,14 +94,25 @@ public final class DailyBudgetView extends JPanel implements DailyBudgetViewMode
     model.addListener(this);
   }
 
+  /**
+   * Connects the trip and day controls to the budget use case.
+   *
+   * @param controller the controller that handles budget requests
+   */
   public void setDailyBudgetController(DailyBudgetController controller) {
     this.controller = controller;
   }
 
+  /**
+   * Sets where the Back button takes the user.
+   *
+   * @param backAction the action to run when the user clicks Back
+   */
   public void setBackAction(Runnable backAction) {
     this.backAction = backAction;
   }
 
+  /** Refreshes changed controls or results and shows any feedback. */
   @Override
   public void stateChanged() {
     final DailyBudgetState state = model.getState();
@@ -115,6 +131,7 @@ public final class DailyBudgetView extends JPanel implements DailyBudgetViewMode
     showFeedback(state.getMessage().isEmpty() ? " " : state.getMessage(), state.hasError());
   }
 
+  /** Loads the selected trip's date range and requests its first day. */
   private void selectTrip() {
     final DailyBudgetTripOption trip = selectedTrip();
     final boolean hasTrip = trip != null;
@@ -142,14 +159,17 @@ public final class DailyBudgetView extends JPanel implements DailyBudgetViewMode
     }
   }
 
+  /** Returns the selected trip, or {@code null} if there is none. */
   private DailyBudgetTripOption selectedTrip() {
     return (DailyBudgetTripOption) trips.getSelectedItem();
   }
 
+  /** Returns the selected day, or {@code null} if there is none. */
   private LocalDate selectedDay() {
     return (LocalDate) days.getSelectedItem();
   }
 
+  /** Requests a summary for the current selection. */
   private void requestDay() {
     final DailyBudgetTripOption trip = selectedTrip();
     if (trip != null) {
@@ -157,6 +177,7 @@ public final class DailyBudgetView extends JPanel implements DailyBudgetViewMode
     }
   }
 
+  /** Displays the selected day's spending and the full trip projection. */
   private void renderSummary(DailyBudgetOutputData data) {
     final String currency = data.getCurrency();
     budget.setText(data.getDailyBudget().stripTrailingZeros().toPlainString());
@@ -192,34 +213,40 @@ public final class DailyBudgetView extends JPanel implements DailyBudgetViewMode
     refreshSummary();
   }
 
+  /** Displays feedback using the error color when the request failed. */
   private void showFeedback(String message, boolean error) {
     feedback.setForeground(error ? ERROR_COLOR : getForeground());
     feedback.setText(message);
   }
 
+  /** Adds a highlighted warning to the budget summary. */
   private void addWarning(String message) {
     final JLabel label = emphasized(message);
     label.setForeground(ERROR_COLOR);
     summary.add(label);
   }
 
+  /** Lays out and repaints the updated summary. */
   private void refreshSummary() {
     summary.revalidate();
     summary.repaint();
   }
 
+  /** Creates a bold label for a heading or warning. */
   private static JLabel emphasized(String text) {
     final JLabel label = new JLabel(text);
     label.setFont(label.getFont().deriveFont(Font.BOLD));
     return label;
   }
 
+  /** Associates a label with its control for accessibility. */
   private static JLabel labelFor(String text, Component component) {
     final JLabel label = new JLabel(text);
     label.setLabelFor(component);
     return label;
   }
 
+  /** Groups related controls on one line. */
   private static JPanel row(Component... components) {
     final JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEADING));
     for (Component component : components) {
@@ -228,6 +255,7 @@ public final class DailyBudgetView extends JPanel implements DailyBudgetViewMode
     return panel;
   }
 
+  /** Formats an amount to cents with its currency code. */
   private static String money(BigDecimal amount, String currency) {
     return amount.setScale(2, RoundingMode.HALF_UP).toPlainString() + " " + currency;
   }

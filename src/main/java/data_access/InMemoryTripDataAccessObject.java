@@ -115,6 +115,13 @@ public class InMemoryTripDataAccessObject
     return result;
   }
 
+  /**
+   * Saves the new daily budget and restores the previous amount in memory if saving fails.
+   *
+   * @param trip the stored trip whose budget is changing
+   * @param amount the new daily budget in the trip's home currency
+   * @return whether the new budget was saved
+   */
   @Override
   public boolean updateDailyBudget(Trip trip, double amount) {
     final double previousBudget = trip.getDailyBudget();
